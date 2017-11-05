@@ -150,6 +150,18 @@ class Card {
 }
 
 // TODO: finish
+class ChopsticksCard extends Card {
+  constructor(value=null) {
+    super(value);
+    this.type = "chopsticks";
+    this.name = "chopsticks";
+  }
+
+  score(stack) {
+    return 0;
+  }
+}
+
 class PuddingCard extends Card {
   constructor(value=null) {
     super(value);
@@ -162,7 +174,6 @@ class PuddingCard extends Card {
   }
 }
 
-// TODO: finish
 class MakiCard extends Card {
   constructor(value=null) {
     super(value);
