@@ -14,22 +14,6 @@ class Card {
     this.value = value;
   }
 
-  get id() {
-    return this.id;
-  }
-
-  get type() {
-    return this.type;
-  }
-
-  get name() {
-    return this.name;
-  }
-
-  get value() {
-    return this.value;
-  }
-
   // assuming the stack is valid
   score(stack) { // override
     return -1;
@@ -55,7 +39,7 @@ class Card {
         currCard = card;
       }
     }
-    return card;
+    return currCard;
   }
 
   // given a list of valid stacks, find the player (i.e., stack index) with the largest sum
@@ -112,7 +96,7 @@ class Card {
       if(ties.length === rankings.length) {
         return scores; // no change if all players have the same amount of pudding
       }
-      var divided_score = parseInt(6 / ties.length));
+      var divided_score = parseInt(6 / ties.length);
       for(var i = 0; i < ties.length; i++) {
         scores[ties[i]] = divided_score;
       }
@@ -131,7 +115,7 @@ class Card {
       }
     }
     if(ties.length > 1) { // found ties
-      var divided_score = parseInt(3 / ties.length));
+      var divided_score = parseInt(3 / ties.length);
       for(var i = 0; i < ties.length; i++) {
         scores[ties[i]] = divided_score;
       }
@@ -152,7 +136,7 @@ class Card {
         }
       }
       if(ties.length > 1) { // found ties
-        var divided_score = parseInt(-6 / ties.length));
+        var divided_score = parseInt(-6 / ties.length);
         for(var i = 0; i < ties.length; i++) {
           scores[ties[i]] = divided_score;
         }
