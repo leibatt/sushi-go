@@ -285,14 +285,14 @@ class NigiriCard extends Card {
     var self = this;
     if(stack.some(card => card.type === self.type)) { // we have some cards to score
       if(stack.some(card => card.type === "wasabi")) { // there is wasabi
-        var maxCard = this.findMaxValueCard(stack);
+        var maxCard = Card.findMaxValueCard(stack);
         if(maxCard.value !== null) {
           return 3 * maxCard.value;
         } else { // why is everything null?
           return -1;
         }
       } else { // just return the total scores of the nigiri cards
-        return this.sumStack(stack);
+        return Card.sumStack(stack);
       }
     } else {
       return 0;
@@ -317,7 +317,8 @@ class NigiriCard extends Card {
         }
       }
     }
-    return (wasabi_count+nigiri_count) === stack.length;
+    // ignore the valid wasabi stack case (exactly 1 wasabi card in the stack, and nothing else)
+    return (nigiri_count >= wasabi_count) && (wasabi_count+nigiri_count) === stack.length;
   }
 }
 
@@ -392,6 +393,7 @@ module.exports = {
   SashimiCard:SashimiCard,
   TempuraCard:TempuraCard,
   NigiriCard:NigiriCard,
+  WasabiCard:WasabiCard,
   SquidNigiriCard:SquidNigiriCard,
   SalmonNigiriCard:SalmonNigiriCard,
   EggNigiriCard:NigiriCard,

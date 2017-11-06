@@ -349,7 +349,7 @@ describe('DumplingCard', function() {
     it('check empty', function() {
       assert.equal(new game_objects.DumplingCard().isValidStack([]), true);
     });
-    it('check stack correct', function() {
+    it('check stack correct cards', function() {
       var card = new game_objects.DumplingCard();
       var card2 = new game_objects.DumplingCard();
       var card3 = new game_objects.DumplingCard();
@@ -357,7 +357,7 @@ describe('DumplingCard', function() {
       assert.equal(new game_objects.DumplingCard().isValidStack([card3,card2,card]), true);
       assert.equal(new game_objects.DumplingCard().isValidStack([card2,card3,card]), true);
     });
-    it('check stack incorrect', function() {
+    it('check stack incorrect cards', function() {
       var card = new game_objects.DumplingCard();
       var card2 = new game_objects.DumplingCard();
       var card3 = new game_objects.MakiCard(3);
@@ -436,6 +436,19 @@ describe('SashimiCard', function() {
       }
     });
   });
+  describe('#score()', function() {
+    it('check empty', function() {
+      assert.equal(new game_objects.SashimiCard().score([]), 0)
+    });
+    it('check stack size', function() {
+      var stack = [];
+      var scores = [0,0,10];
+      for(var i = 0; i < 3; i++) {
+        stack.push(new game_objects.SashimiCard());
+        assert.equal(new game_objects.SashimiCard().score(stack),scores[i])
+      }
+    });
+  });
 });
 
 describe('TempuraCard', function() {
@@ -450,13 +463,13 @@ describe('TempuraCard', function() {
     it('check empty', function() {
       assert.equal(new game_objects.TempuraCard().isValidStack([]), true);
     });
-    it('check stack correct', function() {
+    it('check stack correct cards', function() {
       var card = new game_objects.TempuraCard();
       var card2 = new game_objects.TempuraCard();
       assert.equal(new game_objects.TempuraCard().isValidStack([card,card2]), true);
       assert.equal(new game_objects.TempuraCard().isValidStack([card2,card]), true);
     });
-    it('check stack incorrect', function() {
+    it('check stack incorrect cards', function() {
       var card = new game_objects.TempuraCard();
       var card2 = new game_objects.DumplingCard();
       assert.equal(new game_objects.TempuraCard().isValidStack([card,card2]), false);
@@ -473,6 +486,137 @@ describe('TempuraCard', function() {
         } else {
           assert.equal(new game_objects.TempuraCard().isValidStack(stack), false);
         }
+      }
+    });
+  });
+  describe('#score()', function() {
+    it('check empty', function() {
+      assert.equal(new game_objects.TempuraCard().score([]), 0)
+    });
+    it('check stack size', function() {
+      var stack = [];
+      var scores = [0,5];
+      for(var i = 0; i < 2; i++) {
+        stack.push(new game_objects.TempuraCard());
+        assert.equal(new game_objects.TempuraCard().score(stack),scores[i])
+      }
+    });
+  });
+});
+
+describe('WasabiCard', function() {
+  describe('#constructor()', function() {
+    it('type and name', function() {
+      var card = new game_objects.WasabiCard();
+      assert.equal(card.type, "wasabi");
+      assert.equal(card.name, "wasabi");
+    });
+  });
+  describe('#isValidStack()', function() {
+    it('check empty', function() {
+      assert.equal(new game_objects.WasabiCard().isValidStack([]), false);
+    });
+    it('check stack correct cards', function() {
+      var card = new game_objects.WasabiCard();
+      assert.equal(new game_objects.WasabiCard().isValidStack([card]), true);
+    });
+    it('check stack incorrect cards', function() {
+      var card = new game_objects.WasabiCard();
+      var card2 = new game_objects.NigiriCard();
+      var card3 = new game_objects.MakiCard(1);
+      assert.equal(new game_objects.WasabiCard().isValidStack([card2]), false);
+      assert.equal(new game_objects.WasabiCard().isValidStack([card,card2]), false);
+      assert.equal(new game_objects.WasabiCard().isValidStack([card3,card]), false);
+    });
+    it('check stack size', function() {
+      var card = new game_objects.WasabiCard();
+      var card2 = new game_objects.NigiriCard();
+      assert.equal(new game_objects.WasabiCard().isValidStack([card,card2]), false);
+      assert.equal(new game_objects.WasabiCard().isValidStack([card,card]), false);
+    });
+  });
+  describe('#score()', function() {
+    it('check empty', function() {
+      assert.equal(new game_objects.WasabiCard().score([]), 0)
+    });
+    it('check stack size', function() {
+      var stack = [];
+      var scores = [0,0];
+      for(var i = 0; i < 2; i++) {
+        stack.push(new game_objects.WasabiCard());
+        assert.equal(new game_objects.WasabiCard().score(stack),scores[i])
+      }
+    });
+  });
+});
+
+describe('NigiriCard', function() {
+  describe('#constructor()', function() {
+    it('type and name', function() {
+      var card = new game_objects.NigiriCard();
+      assert.equal(card.type, "nigiri");
+      assert.equal(card.name, null);
+    });
+  });
+  describe('#isValidStack()', function() {
+    it('check empty', function() {
+      assert.equal(new game_objects.NigiriCard().isValidStack([]), true);
+    });
+    it('check stack correct cards', function() {
+      var card = new game_objects.NigiriCard();
+      var card2 = new game_objects.NigiriCard();
+      var card3 = new game_objects.WasabiCard();
+      assert.equal(new game_objects.NigiriCard().isValidStack([card,card2]), true);
+      assert.equal(new game_objects.NigiriCard().isValidStack([card,card2,card]), true);
+      assert.equal(new game_objects.NigiriCard().isValidStack([card2,card]), true);
+      assert.equal(new game_objects.NigiriCard().isValidStack([card2,card3]), true);
+      assert.equal(new game_objects.NigiriCard().isValidStack([card3,card]), true);
+    });
+    it('check stack incorrect cards', function() {
+      var card = new game_objects.NigiriCard();
+      var card2 = new game_objects.DumplingCard();
+      var card3 = new game_objects.WasabiCard();
+      assert.equal(new game_objects.NigiriCard().isValidStack([card3]), false);
+      assert.equal(new game_objects.NigiriCard().isValidStack([card,card2]), false);
+      assert.equal(new game_objects.NigiriCard().isValidStack([card2,card]), false);
+      assert.equal(new game_objects.NigiriCard().isValidStack([card3,card,card2]), false);
+    });
+    it('check stack size', function() {
+      for(var i = 2; i <= 3; i++) {
+        var stack = [new game_objects.WasabiCard()];
+        while(stack.length < i) {
+          stack.push(new game_objects.NigiriCard());
+        }
+        if(i === 2) {
+          assert.equal(new game_objects.NigiriCard().isValidStack(stack), true);
+        } else {
+          assert.equal(new game_objects.NigiriCard().isValidStack(stack), false);
+        }
+      }
+    });
+  });
+  describe('#score()', function() {
+    it('check empty', function() {
+      assert.equal(new game_objects.NigiriCard().score([]), 0)
+    });
+    it('check stack size no wasabi', function() {
+      for(var s = 1; s <= 3; s++) {
+        var stack = [];
+        for(var i = 1; i <= 5; i++) {
+          stack.push(new game_objects.NigiriCard(s));
+          assert.equal(new game_objects.NigiriCard().score(stack),i*s)
+        }
+      }
+      var card = new game_objects.NigiriCard(1);
+      var card2 = new game_objects.NigiriCard(2);
+      var card3 = new game_objects.NigiriCard(3);
+      assert.equal(new game_objects.NigiriCard().score([card,card2]),3)
+      assert.equal(new game_objects.NigiriCard().score([card,card2,card3]),6)
+    });
+    it('check wasabi', function() {
+      for(var s = 1; s <= 3; s++) {
+        var stack = [new game_objects.WasabiCard(),new game_objects.NigiriCard(s)];
+        assert.equal(new game_objects.NigiriCard().score(stack),3*s)
       }
     });
   });
