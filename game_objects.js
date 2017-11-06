@@ -63,7 +63,7 @@ class Card {
     var objs = [];
     var self = this;
     stacks.forEach(stack => objs.push({"stack":stack,"sum":self.sumStack(stack),"idx":objs.length}));
-    return stacks.sort((objA,objB) => objB.sum - objA.sum); // sort descending
+    return objs.sort((objA,objB) => objB.sum - objA.sum); // sort descending
   }
 
   static sumStack(stack) {
@@ -72,15 +72,20 @@ class Card {
 
   // assigns scores based on the maximum values achieved for the given player stacks
   // has optional flag to also penalize last place with a bad score
-  static scoreStacksByRank(stacks,penalizeMin=false) {
-    var rankings = rankPlayerStacks(stacks);
+  static scoreStacksByRank(stacks,secondPlace=true,penalizeMin=false) {
+    var rankings = Card.rankPlayerStacks(stacks);
+
+    if(stacks.length === 0) {
+      return [];
+    }
+
     // check for at least 2 players
     if(stacks.length === 1) {
       return [0];
     }
     var scores = [];
     while(scores.length < rankings.length) { // scores start at 0
-      scores.push([0]);
+      scores.push(0);
     }
     // check for first place tie
     var maxScore = rankings[0].sum;
@@ -104,6 +109,7 @@ class Card {
     }
     // no first place ties
     scores[rankings[0].idx] = 6;
+    if(secondPlace) {
     // check for second place ties
     maxScore = rankings[1].sum;
     ties = [rankings[1].idx];
@@ -123,10 +129,9 @@ class Card {
     }
     // else no ties, first and second place get the spoils
     scores[rankings[1].idx] = 3;
-
-
-    if(penalizeMin) { // for pudding
-      minScore = rankings[rankings.length-1].sum;
+    }
+    if(penalizeMin) { // penalizeMin=true,for pudding
+      var minScore = rankings[rankings.length-1].sum;
       var ties = [rankings[rankings.length-1].idx];
       for(var i = rankings.length-2; i > 0; i--) {
         if(rankings[i].sum === minScore) {
@@ -134,6 +139,9 @@ class Card {
         } else {
           break; // already sorted, no need to continue search
         }
+      }
+      if(ties.length === rankings.length) {
+        return scores; // no change if all players have the same amount of pudding
       }
       if(ties.length > 1) { // found ties
         var divided_score = parseInt(-6 / ties.length);
