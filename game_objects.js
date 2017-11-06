@@ -1,9 +1,21 @@
+function uuidv4() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+};
+
 /********* Begin Cards ***********/
 class Card {
   constructor(value=null) {
+    this.id = uuidv4();
     this.type = null; // override
     this.name = null; // override
     this.value = value;
+  }
+
+  get id() {
+    return this.id;
   }
 
   get type() {
@@ -24,14 +36,15 @@ class Card {
   }
 
   isRelevantStack(stack) {
-    return stack.every(card => card.type === this.type);
+    var self = this;
+    return stack.every(card => card.type === self.type);
   }
 
   isValidStack(stack) {
     return this.isRelevantStack(stack);
   }
 
-  findMaxValueCard(stack) {
+  static findMaxValueCard(stack) {
     if(stack.length === 0) {
       return null;
     }
@@ -46,7 +59,10 @@ class Card {
   }
 
   // given a list of valid stacks, find the player (i.e., stack index) with the largest sum
-  getMaxPlayerStack(stacks) {
+  static getMaxPlayerStack(stacks) {
+    if(stacks.length === 0) {
+      return null;
+    }
     var currSum = null;
     var idx = 0;
     for(var i = 0; i < stacks.length; i++) {
@@ -59,20 +75,20 @@ class Card {
     return idx;
   }
 
-  rankPlayerStacks(stacks) {
+  static rankPlayerStacks(stacks) {
     var objs = [];
     var self = this;
     stacks.forEach(stack => objs.push({"stack":stack,"sum":self.sumStack(stack),"idx":objs.length}));
     return stacks.sort((objA,objB) => objB.sum - objA.sum); // sort descending
   }
 
-  sumStack(stack) {
+  static sumStack(stack) {
     return stack.reduce((sum,card) => sum + card.value,0);
   }
 
   // assigns scores based on the maximum values achieved for the given player stacks
   // has optional flag to also penalize last place with a bad score
-  scoreStacksByRank(stacks,penalizeMin=false) {
+  static scoreStacksByRank(stacks,penalizeMin=false) {
     var rankings = rankPlayerStacks(stacks);
     // check for at least 2 players
     if(stacks.length === 1) {
@@ -274,7 +290,8 @@ class NigiriCard extends Card {
 
   // assuming the stack is valid
   score(stack) {
-    if(stack.some(card => card.type === this.type)) { // we have some cards to score
+    var self = this;
+    if(stack.some(card => card.type === self.type)) { // we have some cards to score
       if(stack.some(card => card.type === "wasabi")) { // there is wasabi
         var maxCard = this.findMaxValueCard(stack);
         if(maxCard.value !== null) {
@@ -372,3 +389,20 @@ class Tableau {
 class Deck {
 
 }
+
+module.exports = {
+  Player:Player,
+  Tableau:Tableau,
+  Hand:Hand,
+  Card:Card,
+  ChopsticksCard:ChopsticksCard,
+  DumplingCard:DumplingCard,
+  SashimiCard:SashimiCard,
+  TempuraCard:TempuraCard,
+  NigiriCard:NigiriCard,
+  SquidNigiriCard:SquidNigiriCard,
+  SalmonNigiriCard:SalmonNigiriCard,
+  EggNigiriCard:NigiriCard,
+  MakiCard:MakiCard,
+  PuddingCard:PuddingCard
+};
