@@ -28,18 +28,15 @@ class Card {
     return this.isRelevantStack(stack);
   }
 
+  static rankCardsByValue(stack) {
+    return stack.slice().sort((c1,c2) => c2.value-c1.value);
+  }
+
   static findMaxValueCard(stack) {
     if(stack.length === 0) {
       return null;
     }
-    var currCard = null;
-    for(var i = 0; i < stack.length; i++) {
-      var card = stack[i];
-      if(currCard === null || card !== null && currCard.value < card.value) {
-        currCard = card;
-      }
-    }
-    return currCard;
+    return this.rankCardsByValue(stack)[0];
   }
 
   // given a list of valid stacks, find the player (i.e., stack index) with the largest sum
@@ -178,7 +175,7 @@ class PuddingCard extends Card {
   }
 
   score(stack) {
-    return 0;
+    return 0; // score should be done compared to everyone else
   }
 }
 
@@ -188,6 +185,12 @@ class MakiCard extends Card {
     this.type = "maki";
     this.name = "maki";
   }
+
+  // assuming the stack is valid
+  score(stack) {
+    return 0; // score should be done compared to everyone else
+  }
+
 }
 
 class DumplingCard extends Card {
@@ -346,8 +349,9 @@ class EggNigiriCard extends NigiriCard {
 /********* End Cards ***********/
 
 class Player {
-  constructor(hand) {
+  constructor(hand,tableau) {
     this.hand = hand;
+    this.tableau = tableau;
   }
 }
 
@@ -364,15 +368,32 @@ class Hand {
 class Tableau {
   constructor() {
     this.stacks = [];
+    // dummies, just for scoring
+    this.scoringCards = [new NigiriCard(), new MakiCard(), new PuddingCard(), new WasabiCard(), new SashimiCard(), new TempuraCard(), new DumplingCard()];
   }
 
   computeScore() {
+    var score = 0;
+    for(var i = 0; i <== this.stacks.length; i++) {
+      var stack = this.stacks[i];
+      score += computeStackScore(stack);
+    }
+    return score;
   }
 
-  computeStackScore() {
+  computeStackScore(stack) {
+    for(var i = 0; i <== this.scoringCards.length; i++) {
+      var score = this.scoringCards[i].score(stack);
+      if(score > 0) {
+        return score;
+      } else if (score < 0) {
+        throw "negative score: " + score;
+      } // otherwise score is zero, ignore
+    }
+    return 0; // by default the score is zero
   }
 
-  addCard(card,stack=null) {
+  addCard(card,stack) {
   }
 
   findStack(card) {
