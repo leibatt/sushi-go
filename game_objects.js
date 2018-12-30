@@ -5,6 +5,25 @@ function uuidv4() {
   });
 };
 
+function shuffle(array) {
+  var currentIndex = array.length, temporaryValue, randomIndex;
+
+  // While there remain elements to shuffle...
+  while (0 !== currentIndex) {
+
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+
+    // And swap it with the current element.
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
+
+  return array;
+}
+
 /********* Begin Cards ***********/
 class Card {
   constructor(value=null) {
@@ -12,6 +31,10 @@ class Card {
     this.type = null; // override
     this.name = null; // override
     this.value = value;
+  }
+
+  display() {
+    return "(card "+this.type+" "+this.name+")";
   }
 
   // assuming the stack is valid
@@ -349,12 +372,43 @@ class EggNigiriCard extends NigiriCard {
 /********* End Cards ***********/
 
 class Player {
-  constructor(hand,tableau) {
+  constructor(name=null) {
+    if(name) {
+      this.name = name;
+    } else {
+      this.name = uuidv4();
+    }
+    this.hand = [];
+    this.tableau = new Tableau();
+  }
+
+  display() {
+    return "(player "+[this.name,"(hand ["+ this.hand.map((card) => card.display()).join(", ")+"])",this.tableau.display()].join(", ")+")";
+  }
+
+  getName() {
+    return this.name;
+  }
+
+  getHand() {
+    return this.hand;
+  }
+
+  setHand(hand) {
     this.hand = hand;
-    this.tableau = tableau;
+  }
+
+  getTableau() {
+    return this.tableau;
+  }
+
+  moveCardToTableau(cardId,stackId) {
+    var card = this.hand.splice(cardId, 1 )[0];
+    this.tableau.addToStack(card,stackId);
   }
 }
 
+/*
 class Hand {
   constructor(cards=null) {
     if(cards !== null) {
@@ -363,7 +417,20 @@ class Hand {
       this.cards = [];
     }
   }
+  
+  display() {
+    return "(hand " + this.cards.join(", ") + ")";
+  }
+
+  addCard(card) {
+    this.cards.push(card);
+  }
+
+  getCards() {
+    return this.cards;
+  }
 }
+*/
 
 class Tableau {
   constructor() {
@@ -372,17 +439,26 @@ class Tableau {
     this.scoringCards = [new NigiriCard(), new MakiCard(), new PuddingCard(), new WasabiCard(), new SashimiCard(), new TempuraCard(), new DumplingCard()];
   }
 
+  addToStack(card,stackId=null) {
+    if(this.stacks.length === 0) {
+      this.stacks.push([card]);
+    } else if(stackId && stackId > 0) {
+      this.stacks[stackId].push(card);
+    }
+  }
+
   computeScore() {
     var score = 0;
-    for(var i = 0; i <== this.stacks.length; i++) {
+    for(var i = 0; i < this.stacks.length; i++) {
       var stack = this.stacks[i];
       score += computeStackScore(stack);
     }
     return score;
   }
 
+  // compute the first valid score found for this stack
   computeStackScore(stack) {
-    for(var i = 0; i <== this.scoringCards.length; i++) {
+    for(var i = 0; i < this.scoringCards.length; i++) {
       var score = this.scoringCards[i].score(stack);
       if(score > 0) {
         return score;
@@ -393,17 +469,219 @@ class Tableau {
     return 0; // by default the score is zero
   }
 
+  // add the card to the given stack ID
   addCard(card,stack) {
+    this.stacks[i].push(card);
   }
 
-  findStack(card) {
+  // find all stacks that this card could belong to
+  findValidStacks(card) {
+    if(this.stacks.length == 0) {
+      return null;
+    }
+
+    var found = [];
+    for(var i = 0; i < this.stacks.length; i++) {
+      var stack = this.stacks[i];
+      for(var j = 0; j < stack.length; j++) {
+        var c = stack[j];
+        if(card.type === c.type) {
+          found.push(i);
+          break;
+        }
+      }
+    }
+    return found;
+  }
+
+  display() {
+    var stackDisplays = [];
+    for(var i = 0; i < this.stacks.length; i++) {
+      var stack = this.stacks[i];
+      stackDisplays.push("(stack ["+stack.map((card) => card.display()).join(", ")+"])");
+    }
+    return "(tableau ["+ stackDisplays.join(", ") + "])";
   }
 }
+
+/*
+* From BGG:
+* 108 cards (57.5x88.5mm)
+* 14x Tempura
+* 14x Sashimi
+* 14x Dumpling
+* 12x 2 Maki
+* 8x 3 Maki
+* 6x 1 Maki
+* 10x Salmon Sushi (Nigiri)
+* 5x Squid Sushi (Nigiri)
+* 5x Omelet Sushi (Nigiri)
+* 10x Dessert (pudding)
+* 6x Wasabi
+* 4x Chopsticks
+*/
 
 class Deck {
+  constructor() {
+    this.cards = [];
+    this.makeStandardDeck();
+    this.shuffle();
+  }
 
+  shuffle() {
+    shuffle(this.cards);
+  }
+
+  // removes and returns the *last* card in the array!
+  drawCard() {
+    return this.cards.pop();
+  }
+
+  makeStandardDeck() {
+    // 14x Tempura
+    for(var i = 0; i < 14; i++) {
+      this.cards.push(new TempuraCard());
+    }
+
+    // 14x Sashimi
+    for(var i = 0; i < 14; i++) {
+      this.cards.push(new SashimiCard());
+    }
+
+    // 14x Dumpling
+    for(var i = 0; i < 14; i++) {
+      this.cards.push(new DumplingCard());
+    }
+
+    // 12x 2 Maki
+    for(var i = 0; i < 12; i++) {
+      this.cards.push(new MakiCard(2));
+    }
+
+    // 8x 3 Maki
+    for(var i = 0; i < 8; i++) {
+      this.cards.push(new MakiCard(3));
+    }
+
+    // 6x 1 Maki
+    for(var i = 0; i < 6; i++) {
+      this.cards.push(new MakiCard(1));
+    }
+
+    // 10x Salmon Nigiri
+    for(var i = 0; i < 10; i++) {
+      this.cards.push(new SalmonNigiriCard());
+    }
+
+    // 5x Squid Nigiri
+    for(var i = 0; i < 5; i++) {
+      this.cards.push(new SquidNigiriCard());
+    }
+
+    // 5x Egg Nigiri
+    for(var i = 0; i < 5; i++) {
+      this.cards.push(new EggNigiriCard());
+    }
+
+    // 10x Pudding
+    for(var i = 0; i < 10; i++) {
+      this.cards.push(new PuddingCard());
+    }
+
+    // 6x Wasabi
+    for(var i = 0; i < 6; i++) {
+      this.cards.push(new WasabiCard());
+    }
+
+    // 4x Chopsticks
+    for(var i = 0; i < 4; i++) {
+      this.cards.push(new ChopsticksCard());
+    }
+  }
+
+  display() {
+    return "(deck ["+this.cards.map((card) => card.display()).join(", ")+"])";
+  }
 }
 
+class GameManager {
+  constructor(players=null) {
+    this.currentTurn = 0; // which player's turn is it?
+    this.players = {};
+    this.playerOrder = [];
+    if(players) {
+      players.forEach((name) => {
+        this.createPlayer(name);
+        this.playerOrder.push(name);
+      });
+    }
+    this.deck = new Deck();
+    this.assignHands();
+  }
+
+  displayGameState() {
+    this.playerOrder.forEach((name) => {
+      console.log(this.players[name].display());
+    });
+    console.log(this.deck.display());
+  }
+
+  createPlayer(name=null) {
+    var player = new Player(name);
+    this.players[player.getName()] = player;
+    return player;
+  }
+
+  rotateHands() {
+    if(this.playerOrder.length == 0) { // no players!
+      return;
+    }
+    var prevHand = this.players[this.playerOrder[0]].getHand();
+    var currHand = null;
+    for(var i = 1; i < this.playerOrder.length; i++) {
+      currHand = this.players[this.playerOrder[i]].getHand();
+      this.players[this.playerOrder[i]].setHand(prevHand);
+      prevHand = currHand;
+    }
+    this.players[this.playerOrder[0]].setHand(currHand);
+  }
+
+  assignHands() {
+    var names = Object.keys(this.players);
+    if(names.length < 2) {
+      throw "Insufficient number of players: "+names.length;
+    }
+    var cardsPerPlayer = {
+      2:10,
+      3:9,
+      4:8,
+      5:7
+    }[names.length];
+    for(var i = 0; i < cardsPerPlayer; i++) {
+      for(var j = 0; j < names.length; j++) {
+        this.players[names[j]].getHand().push(this.deck.drawCard());
+      }
+    }
+  }
+
+  moveCardToTableau(playerName,cardId,stackId) {
+    if(this.currentTurn === this.playerOrder.indexOf(playerName)) {
+      this.players[playerName].moveCardToTableau(cardId,stackId);
+      this.endTurn();
+    }
+  }
+
+  // update whose turn it is
+  endTurn() {
+    this.currentTurn++;
+    if(this.currentTurn >= this.playerOrder.length) {
+      this.currentTurn = 0;
+      this.rotateHands();
+    }
+  }
+}
+
+/*
 module.exports = {
   Player:Player,
   Tableau:Tableau,
@@ -421,3 +699,4 @@ module.exports = {
   MakiCard:MakiCard,
   PuddingCard:PuddingCard
 };
+*/
