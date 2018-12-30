@@ -607,12 +607,16 @@ class Deck {
 class GameManager {
   constructor(players=null) {
     this.currentTurn = 0; // which player's turn is it?
+    this.currentRound = 0; // which round is it?
+    this.maxRounds = 3; // how many rounds are played?
     this.players = {};
     this.playerOrder = [];
+    this.scores = {};
     if(players) {
       players.forEach((name) => {
         this.createPlayer(name);
         this.playerOrder.push(name);
+        this.scores[name] = 0;
       });
     }
     this.deck = new Deck();
@@ -624,6 +628,7 @@ class GameManager {
       console.log(this.players[name].display());
     });
     console.log(this.deck.display());
+    console.log(this.displayScores());
   }
 
   createPlayer(name=null) {
@@ -679,6 +684,26 @@ class GameManager {
       this.rotateHands();
     }
   }
+
+  scoreRound() {
+    for(var i = 0; i < this.playerOrder.length; i++) {
+      this.scores[playerName] += this.players[this.playerOrder[i]].getTableau().computeScore();
+    }
+  }
+
+  displayScores() {
+    var scoreStrings = [];
+    for(var i = 0; i < this.playerOrder.length; i++) {
+      var playerName = this.playerOrder[i];
+      scoreStrings.push("(score "+[playerName, this.scores[playerName]].join(", ")+")");
+    }
+    return "(scores "+this.currentRound+ " ["+scoreStrings.join(", ")+"])";
+  }
+
+  endRound() {
+    
+  }
+
 }
 
 /*
