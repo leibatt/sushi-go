@@ -225,14 +225,18 @@ class DumplingCard extends Card {
 
   // assuming the stack is valid
   score(stack) {
-    return {
-      0:0,
-      1:1,
-      2:3,
-      3:6,
-      4:10,
-      5:15
-    }[stack.length];
+    if(this.isValidStack(stack)) {
+      return {
+        0:0,
+        1:1,
+        2:3,
+        3:6,
+        4:10,
+        5:15
+      }[stack.length];
+    } else {
+      return 0; // not a valid dumpling stack
+    }
   }
 
   isValidStack(stack) {
@@ -249,7 +253,7 @@ class TempuraCard extends Card {
 
   // assuming the stack is valid
   score(stack) {
-    if(stack.length == 2) {
+    if(this.isValidStack(stack) && stack.length === 2) {
       return 5;
     } else {
       return 0;
@@ -270,7 +274,7 @@ class SashimiCard extends Card {
 
   // assuming the stack is valid
   score(stack) {
-    if(stack.length === 3) {
+    if(this.isValidStack(stack) && stack.length === 3) {
       return 10;
     } else {
       return 0;
@@ -440,10 +444,16 @@ class Tableau {
   }
 
   addToStack(card,stackId=null) {
-    if(this.stacks.length === 0) {
+    console.log(card.display(),stackId);
+    if(this.stacks.length === 0 || stackId && stackId < 0) { // make a new stack
       this.stacks.push([card]);
-    } else if(stackId && stackId > 0) {
+      console.log("got here1");
+    } else if(stackId >= 0 && stackId < this.stacks.length) { // valid stackId was passed
       this.stacks[stackId].push(card);
+      console.log("got here2");
+    } else { // something bad happened
+      console.log("got here3");
+      throw ["did not add card to stack! ",card.display(),stackId].join(" ");
     }
   }
 
@@ -451,14 +461,16 @@ class Tableau {
     var score = 0;
     for(var i = 0; i < this.stacks.length; i++) {
       var stack = this.stacks[i];
-      score += computeStackScore(stack);
+      score += this.computeStackScore(stack);
     }
     return score;
   }
 
   // compute the first valid score found for this stack
   computeStackScore(stack) {
+    //console.log("executing computeStackScore");
     for(var i = 0; i < this.scoringCards.length; i++) {
+      //console.log(this.scoringCards[i],this.scoringCards[i].score(stack));
       var score = this.scoringCards[i].score(stack);
       if(score > 0) {
         return score;
@@ -524,7 +536,8 @@ class Tableau {
 class Deck {
   constructor() {
     this.cards = [];
-    this.makeStandardDeck();
+    //this.makeStandardDeck();
+    this.makeTestDeck();
     this.shuffle();
   }
 
@@ -535,6 +548,38 @@ class Deck {
   // removes and returns the *last* card in the array!
   drawCard() {
     return this.cards.pop();
+  }
+
+  makeTestDeck() {
+    // 14x Tempura
+    for(var i = 0; i < 14; i++) {
+      this.cards.push(new TempuraCard());
+    }
+
+    // 14x Sashimi
+    for(var i = 0; i < 14; i++) {
+      this.cards.push(new SashimiCard());
+    }
+
+    // 14x Dumpling
+    for(var i = 0; i < 14; i++) {
+      this.cards.push(new DumplingCard());
+    }
+
+    // 10x Salmon Nigiri
+    for(var i = 0; i < 10; i++) {
+      this.cards.push(new SalmonNigiriCard());
+    }
+
+    // 5x Squid Nigiri
+    for(var i = 0; i < 5; i++) {
+      this.cards.push(new SquidNigiriCard());
+    }
+
+    // 5x Egg Nigiri
+    for(var i = 0; i < 5; i++) {
+      this.cards.push(new EggNigiriCard());
+    }
   }
 
   makeStandardDeck() {
@@ -638,17 +683,19 @@ class GameManager {
   }
 
   rotateHands() {
-    if(this.playerOrder.length == 0) { // no players!
+    if(this.playerOrder.length === 0) { // no players!
       return;
     }
     var prevHand = this.players[this.playerOrder[0]].getHand();
-    var currHand = null;
     for(var i = 1; i < this.playerOrder.length; i++) {
-      currHand = this.players[this.playerOrder[i]].getHand();
+      var currHand = this.players[this.playerOrder[i]].getHand();
+      //console.log([this.playerOrder[i],"prevHand","(hand ["+ prevHand.map((card) => card.display()).join(", ")+"])"]);
+      //console.log([this.playerOrder[i],"currHand","(hand ["+ currHand.map((card) => card.display()).join(", ")+"])"]);
       this.players[this.playerOrder[i]].setHand(prevHand);
+      //console.log([this.playerOrder[i],"new hand","(hand ["+ this.players[this.playerOrder[i]].getHand().map((card) => card.display()).join(", ")+"])"]);
       prevHand = currHand;
     }
-    this.players[this.playerOrder[0]].setHand(currHand);
+    this.players[this.playerOrder[0]].setHand(prevHand);
   }
 
   assignHands() {
@@ -669,10 +716,12 @@ class GameManager {
     }
   }
 
-  moveCardToTableau(playerName,cardId,stackId) {
+  moveCardToTableau(playerName,cardId,stackId=null) {
     if(this.currentTurn === this.playerOrder.indexOf(playerName)) {
       this.players[playerName].moveCardToTableau(cardId,stackId);
       this.endTurn();
+    } else {
+      throw "not the current player's turn: " + ["playerName:",playerName,"current turn:",this.currentTurn,"index of playerName:",this.playerOrder.indexOf(playerName)].join(" ");
     }
   }
 
@@ -685,10 +734,22 @@ class GameManager {
     }
   }
 
-  scoreRound() {
+  computeCurrentScores() {
+    var scores = {};
     for(var i = 0; i < this.playerOrder.length; i++) {
-      this.scores[playerName] += this.players[this.playerOrder[i]].getTableau().computeScore();
+      var playerName = this.playerOrder[i];
+      scores[playerName] = this.players[this.playerOrder[i]].getTableau().computeScore();
     }
+    return scores;
+  }
+
+  scoreRound() {
+    var scores = this.computeCurrentScores();
+    for(var i = 0; i < this.playerOrder.length; i++) {
+      var playerName = this.playerOrder[i];
+      this.scores[playerName] += scores[playerName];
+    }
+    //return JSON.parse(JSON.stringify(this.scores));
   }
 
   displayScores() {
@@ -697,11 +758,12 @@ class GameManager {
       var playerName = this.playerOrder[i];
       scoreStrings.push("(score "+[playerName, this.scores[playerName]].join(", ")+")");
     }
-    return "(scores "+this.currentRound+ " ["+scoreStrings.join(", ")+"])";
+    return "scores for round "+this.currentRound+ ": ["+scoreStrings.join(", ")+"]";
   }
 
   endRound() {
-    
+    this.scoreRound(); 
+    return this.displayScores();
   }
 
 }
