@@ -5,6 +5,10 @@ function uuidv4() {
   });
 };
 
+function sum(arr) {
+  return arr.reduce((acc,el) => acc + el,0);
+};
+
 function shuffle(array) {
   var currentIndex = array.length, temporaryValue, randomIndex;
 
@@ -376,14 +380,15 @@ class EggNigiriCard extends NigiriCard {
 /********* End Cards ***********/
 
 class Player {
-  constructor(name=null) {
+  constructor(discard,name=null) {
     if(name) {
       this.name = name;
     } else {
       this.name = uuidv4();
     }
+    this.discard = discard;
     this.hand = [];
-    this.tableau = new Tableau();
+    this.tableau = new Tableau(discard);
   }
 
   display() {
@@ -409,6 +414,10 @@ class Player {
   moveCardToTableau(cardId,stackId) {
     var card = this.hand.splice(cardId, 1 )[0];
     this.tableau.addToStack(card,stackId);
+  }
+
+  clearTableau() {
+    this.tableau.clear();
   }
 }
 
@@ -437,8 +446,9 @@ class Hand {
 */
 
 class Tableau {
-  constructor() {
+  constructor(discard) {
     this.stacks = [];
+    this.discard = discard;
     // dummies, just for scoring
     this.scoringCards = [new NigiriCard(), new MakiCard(), new PuddingCard(), new WasabiCard(), new SashimiCard(), new TempuraCard(), new DumplingCard()];
   }
@@ -513,6 +523,18 @@ class Tableau {
       stackDisplays.push("(stack ["+stack.map((card) => card.display()).join(", ")+"])");
     }
     return "(tableau ["+ stackDisplays.join(", ") + "])";
+  }
+
+  clear() {
+    // move tableau to discard pile
+    for(var i = 0; i < this.stacks.length; i++) {
+      var stack = this.stacks[i];
+      for(var j = 0; j < stack.length; j++) {
+        var card = stack[j];
+        this.discard.push(card);
+      }
+    }
+    this.stacks = [];
   }
 }
 
@@ -650,18 +672,22 @@ class Deck {
 }
 
 class GameManager {
-  constructor(players=null) {
+
+  // takes list of player names as input
+  constructor(players=null,debug=false) {
+    this.debug = debug; // are we in debugging mode?
     this.currentTurn = 0; // which player's turn is it?
     this.currentRound = 0; // which round is it?
     this.maxRounds = 3; // how many rounds are played?
     this.players = {};
     this.playerOrder = [];
     this.scores = {};
+    this.discard = [];
     if(players) {
       players.forEach((name) => {
         this.createPlayer(name);
         this.playerOrder.push(name);
-        this.scores[name] = 0;
+        this.scores[name] = [];
       });
     }
     this.deck = new Deck();
@@ -673,11 +699,16 @@ class GameManager {
       console.log(this.players[name].display());
     });
     console.log(this.deck.display());
-    console.log(this.displayScores());
+    console.log(this.displayDiscard());
+    console.log(this.displayScoresForCurrentRound());
+  }
+
+  displayDiscard() {
+    return "(discard ["+this.discard.map((card) => card.display()).join(", ")+"])";
   }
 
   createPlayer(name=null) {
-    var player = new Player(name);
+    var player = new Player(this.discard,name);
     this.players[player.getName()] = player;
     return player;
   }
@@ -709,6 +740,9 @@ class GameManager {
       4:8,
       5:7
     }[names.length];
+    if(this.debug) {
+      cardsPerPlayer = 2;
+    }
     for(var i = 0; i < cardsPerPlayer; i++) {
       for(var j = 0; j < names.length; j++) {
         this.players[names[j]].getHand().push(this.deck.drawCard());
@@ -729,8 +763,23 @@ class GameManager {
   endTurn() {
     this.currentTurn++;
     if(this.currentTurn >= this.playerOrder.length) {
-      this.currentTurn = 0;
-      this.rotateHands();
+      console.log("checking round end");
+      if(this.checkRoundEnd()) { // round is over
+        console.log("round is over");
+        var res = this.endRound();
+        console.log(res);
+        if(this.checkGameEnd()) {
+          console.log("game over!");
+          console.log(this.displayFinalScores());
+        } else {
+          this.currentTurn = 0;
+          this.playerOrder.forEach(n => this.players[n].clearTableau());
+          this.assignHands();
+        }
+      } else {
+        this.currentTurn = 0;
+        this.rotateHands();
+      }
     }
   }
 
@@ -747,23 +796,43 @@ class GameManager {
     var scores = this.computeCurrentScores();
     for(var i = 0; i < this.playerOrder.length; i++) {
       var playerName = this.playerOrder[i];
-      this.scores[playerName] += scores[playerName];
+      this.scores[playerName].push(scores[playerName]);
     }
     //return JSON.parse(JSON.stringify(this.scores));
   }
 
-  displayScores() {
+  displayFinalScores() {
+   var scoreStrings = [];
+    for(var i = 0; i < this.playerOrder.length; i++) {
+      var playerName = this.playerOrder[i];
+      scoreStrings.push("(score "+[playerName, sum(this.scores[playerName])].join(", ")+")");
+    }
+    return "final scores : ["+scoreStrings.join(", ")+"]";
+  }
+
+  displayScoresForCurrentRound() {
     var scoreStrings = [];
     for(var i = 0; i < this.playerOrder.length; i++) {
       var playerName = this.playerOrder[i];
-      scoreStrings.push("(score "+[playerName, this.scores[playerName]].join(", ")+")");
+      scoreStrings.push("(score "+[playerName, this.scores[playerName][this.currentRound]].join(", ")+")");
     }
     return "scores for round "+this.currentRound+ ": ["+scoreStrings.join(", ")+"]";
   }
 
   endRound() {
     this.scoreRound(); 
-    return this.displayScores();
+    var results = this.displayScoresForCurrentRound();
+    this.currentRound++;
+    return results;
+  }
+
+  checkRoundEnd() {
+    return this.playerOrder.every(n => this.players[n].getHand().length == 0);
+  }
+
+  checkGameEnd() {
+    // three scores have been computed for each player
+    return this.playerOrder.every(n => this.scores[n].length == 3);
   }
 
 }
