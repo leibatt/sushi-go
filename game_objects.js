@@ -316,21 +316,17 @@ class NigiriCard extends Card {
 
   // assuming the stack is valid
   score(stack) {
-    var self = this;
-    if(stack.some(card => card.type === self.type)) { // we have some cards to score
-      if(stack.some(card => card.type === "wasabi")) { // there is wasabi
-        var maxCard = Card.findMaxValueCard(stack);
-        if(maxCard.value !== null) {
-          return 3 * maxCard.value;
-        } else { // why is everything null?
-          return -1;
+    if(this.isValidStack(stack)) {
+      var self = this;
+      if(stack.some(card => card.name === self.name)) { // the card is of the correct nigiri type
+        if(stack.some(card => card.type === "wasabi")) { // there is wasabi
+          return 3 * this.value;
+        } else {
+          return this.value;
         }
-      } else { // just return the total scores of the nigiri cards
-        return Card.sumStack(stack);
       }
-    } else {
-      return 0;
     }
+    return 0;
   }
 
   isRelevantStack(stack) {
@@ -351,8 +347,10 @@ class NigiriCard extends Card {
         }
       }
     }
+
     // ignore the valid wasabi stack case (exactly 1 wasabi card in the stack, and nothing else)
-    return (nigiri_count >= wasabi_count) && (wasabi_count+nigiri_count) === stack.length;
+    return (nigiri_count+wasabi_count) === stack.length // nigiri and wasabi only
+      && wasabi_count <= 1 && nigiri_count <= 1;
   }
 }
 
@@ -450,7 +448,7 @@ class Tableau {
     this.stacks = [];
     this.discard = discard;
     // dummies, just for scoring
-    this.scoringCards = [new NigiriCard(), new MakiCard(), new PuddingCard(), new WasabiCard(), new SashimiCard(), new TempuraCard(), new DumplingCard()];
+    this.scoringCards = [new EggNigiriCard(),new SalmonNigiriCard(),new SquidNigiriCard(), new MakiCard(), new PuddingCard(), new WasabiCard(), new SashimiCard(), new TempuraCard(), new DumplingCard()];
   }
 
   addToStack(card,stackId=null) {
@@ -573,6 +571,7 @@ class Deck {
   }
 
   makeTestDeck() {
+/*
     // 14x Tempura
     for(var i = 0; i < 14; i++) {
       this.cards.push(new TempuraCard());
@@ -582,17 +581,26 @@ class Deck {
     for(var i = 0; i < 14; i++) {
       this.cards.push(new SashimiCard());
     }
+*/
 
+/*
     // 14x Dumpling
     for(var i = 0; i < 14; i++) {
       this.cards.push(new DumplingCard());
     }
+*/
 
     // 10x Salmon Nigiri
     for(var i = 0; i < 10; i++) {
       this.cards.push(new SalmonNigiriCard());
     }
 
+    // 6x Wasabi
+    for(var i = 0; i < 6; i++) {
+      this.cards.push(new WasabiCard());
+    }
+
+/*
     // 5x Squid Nigiri
     for(var i = 0; i < 5; i++) {
       this.cards.push(new SquidNigiriCard());
@@ -602,6 +610,7 @@ class Deck {
     for(var i = 0; i < 5; i++) {
       this.cards.push(new EggNigiriCard());
     }
+*/
   }
 
   makeStandardDeck() {
@@ -741,7 +750,7 @@ class GameManager {
       5:7
     }[names.length];
     if(this.debug) {
-      cardsPerPlayer = 2;
+      cardsPerPlayer = 5;
     }
     for(var i = 0; i < cardsPerPlayer; i++) {
       for(var j = 0; j < names.length; j++) {
