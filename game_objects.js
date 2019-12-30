@@ -38,7 +38,7 @@ class Card {
   }
 
   display() {
-    return "(card "+this.type+" "+this.name+")";
+    return "(card "+this.type+" "+this.name+" "+this.value+")";
   }
 
   // assuming the stack is valid
@@ -214,10 +214,17 @@ class MakiCard extends Card {
   }
 
   // assuming the stack is valid
+  // only invoke at the end of the round to calculate the maximum maki score
   score(stack) {
-    return 0; // score should be done compared to everyone else
+    var self = this;
+    //console.log("calling scoring method for MakiCard class");
+    //console.log([stack,"is valid stack?",this.isValidStack(stack),"score?",stack.reduce((acc,c) => c.type === self.type ? c.value + acc : acc,0)]);
+    if(this.isValidStack(stack)) {
+      return stack.reduce((acc,c) => c.type === self.type ? c.value + acc : acc,0);
+    } else {
+      return 0; // score should be done compared to everyone else
+    }
   }
-
 }
 
 class DumplingCard extends Card {
@@ -448,7 +455,8 @@ class Tableau {
     this.stacks = [];
     this.discard = discard;
     // dummies, just for scoring
-    this.scoringCards = [new EggNigiriCard(),new SalmonNigiriCard(),new SquidNigiriCard(), new MakiCard(), new PuddingCard(), new WasabiCard(), new SashimiCard(), new TempuraCard(), new DumplingCard()];
+    this.scoringCards = [new EggNigiriCard(),new SalmonNigiriCard(),new SquidNigiriCard(), new WasabiCard(), new SashimiCard(), new TempuraCard(), new DumplingCard()];
+    // require special scoring: new MakiCard(), new PuddingCard()
   }
 
   addToStack(card,stackId=null) {
@@ -474,12 +482,21 @@ class Tableau {
     return score;
   }
 
+  computeStackScoreForCardType(scoringCard,stack) {
+    return scoringCard.score(stack);
+  }
+
+  computeMakiScore() {
+    return this.stacks.reduce((acc,stack) => acc + this.computeStackScoreForCardType(new MakiCard(),stack),0);
+  }
+
   // compute the first valid score found for this stack
   computeStackScore(stack) {
     //console.log("executing computeStackScore");
     for(var i = 0; i < this.scoringCards.length; i++) {
       //console.log(this.scoringCards[i],this.scoringCards[i].score(stack));
-      var score = this.scoringCards[i].score(stack);
+      //var score = this.scoringCards[i].score(stack);
+      var score = this.computeStackScoreForCardType(this.scoringCards[i],stack);
       if(score > 0) {
         return score;
       } else if (score < 0) {
@@ -581,14 +598,11 @@ class Deck {
     for(var i = 0; i < 14; i++) {
       this.cards.push(new SashimiCard());
     }
-*/
 
-/*
     // 14x Dumpling
     for(var i = 0; i < 14; i++) {
       this.cards.push(new DumplingCard());
     }
-*/
 
     // 10x Salmon Nigiri
     for(var i = 0; i < 10; i++) {
@@ -600,7 +614,6 @@ class Deck {
       this.cards.push(new WasabiCard());
     }
 
-/*
     // 5x Squid Nigiri
     for(var i = 0; i < 5; i++) {
       this.cards.push(new SquidNigiriCard());
@@ -610,7 +623,21 @@ class Deck {
     for(var i = 0; i < 5; i++) {
       this.cards.push(new EggNigiriCard());
     }
+    // 12x 2 Maki
+    for(var i = 0; i < 12; i++) {
+      this.cards.push(new MakiCard(2));
+    }
+
+    // 8x 3 Maki
+    for(var i = 0; i < 8; i++) {
+      this.cards.push(new MakiCard(3));
+    }
 */
+
+    // 6x 1 Maki
+    for(var i = 0; i < 60; i++) {
+      this.cards.push(new MakiCard(1));
+    }
   }
 
   makeStandardDeck() {
@@ -750,7 +777,7 @@ class GameManager {
       5:7
     }[names.length];
     if(this.debug) {
-      cardsPerPlayer = 5;
+      cardsPerPlayer = 2;
     }
     for(var i = 0; i < cardsPerPlayer; i++) {
       for(var j = 0; j < names.length; j++) {
@@ -801,11 +828,63 @@ class GameManager {
     return scores;
   }
 
+  // for calculating scores for Maki
+  computeMakiScores() {
+    var items = [];
+    this.playerOrder.forEach((n,i) => {
+      items.push({
+        "id": i,
+        "name": n,
+        "score": this.players[n].getTableau().computeMakiScore()
+      });
+    });
+    items.sort((a,b) => b.score-a.score); // sort in reverse
+
+    // prepare base scores
+    var makiScores = {};
+    items.forEach(i => { makiScores[i.name] = 0; });
+
+    if(items.length > 1) {
+      // search for ties
+      var mt = 0;
+      for(var i = 1; i < items.length; i++) {
+        if(items[i].score < items[0].score) {
+          break;
+        } else {
+          mt = i;
+        }
+      }
+      if(mt > 0) { // ties for first place
+        var pt = Math.floor(6 / (mt + 1));
+        for(var i = 0; i <= mt; i++) {
+          makiScores[items[i].name] = pt;
+        }
+      } else { // check ties for second place
+        makiScores[items[0].name] = 6;
+        mt = 1;
+        for(i = 2; i < items.length; i++) {
+          if(items[i].score < items[1].score) {
+            break;
+          } else {
+            mt = i;
+          }
+        }
+        var pt = Math.floor(3 / mt); // will always be 1
+        for(var i = 1; i <= mt; i++) {
+          makiScores[items[i].name] = pt;
+        }
+      }
+    }
+    return makiScores;
+  }
+
   scoreRound() {
     var scores = this.computeCurrentScores();
+    var makiScores = this.computeMakiScores();
     for(var i = 0; i < this.playerOrder.length; i++) {
       var playerName = this.playerOrder[i];
-      this.scores[playerName].push(scores[playerName]);
+      console.log("player",playerName,"base score",scores[playerName],"maki score",makiScores[playerName]);
+      this.scores[playerName].push(scores[playerName]+makiScores[playerName]);
     }
     //return JSON.parse(JSON.stringify(this.scores));
   }
