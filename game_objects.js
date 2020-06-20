@@ -36,6 +36,11 @@ sushiGoSim.Player = class {
     this.tableau.addToStack(card,stackId);
   }
 
+  addPudding(cardId) {
+    var card = this.hand.splice(cardId, 1 )[0];
+    this.tableau.puddingCache.push(card);
+  }
+
   clearTableau() {
     this.tableau.clear();
   }
@@ -47,6 +52,7 @@ sushiGoSim.Player = class {
 sushiGoSim.Tableau = class {
   constructor(discard) {
     this.stacks = [];
+    this.puddingCache = []; // for keeping puddings around
     this.discard = discard;
     // dummies, just for scoring
     this.scoringCards = [new sushiGoSim.cards.EggNigiriCard(),new sushiGoSim.cards.SalmonNigiriCard(),new sushiGoSim.cards.SquidNigiriCard(), new sushiGoSim.cards.WasabiCard(), new sushiGoSim.cards.SashimiCard(), new sushiGoSim.cards.TempuraCard(), new sushiGoSim.cards.DumplingCard()];
@@ -81,7 +87,7 @@ sushiGoSim.Tableau = class {
   }
 
   computePuddingScore() {
-    return this.stacks.reduce((acc,stack) => acc + this.computeStackScoreForCardType(new sushiGoSim.cards.PuddingCard(),stack),0);
+    return this.computeStackScoreForCardType(new sushiGoSim.cards.PuddingCard(),this.puddingCache);
   }
 
   computeMakiScore() {
@@ -231,13 +237,13 @@ sushiGoSim.Deck = class {
       this.cards.push(new sushiGoSim.cards.MakiCard(3));
     }
 
+*/
     // 6x 1 Maki
     for(var i = 0; i < 40; i++) {
       this.cards.push(new sushiGoSim.cards.MakiCard(1));
     }
-*/
     // 10x Pudding
-    for(var i = 0; i < 60; i++) {
+    for(var i = 0; i < 20; i++) {
       this.cards.push(new sushiGoSim.cards.PuddingCard());
     }
   }
@@ -390,7 +396,12 @@ sushiGoSim.GameManager = class {
 
   moveCardToTableau(playerName,cardId,stackId=null) {
     if(this.currentTurn === this.playerOrder.indexOf(playerName)) {
-      this.players[playerName].moveCardToTableau(cardId,stackId);
+      // TODO: make this more general
+      if(this.players[playerName].hand[cardId].type === "pudding") {
+        this.players[playerName].addPudding(cardId);
+      } else {
+        this.players[playerName].moveCardToTableau(cardId,stackId);
+      }
       this.endTurn();
     } else {
       throw "not the current player's turn: " + ["playerName:",playerName,"current turn:",this.currentTurn,"index of playerName:",this.playerOrder.indexOf(playerName)].join(" ");
@@ -461,8 +472,10 @@ sushiGoSim.GameManager = class {
         for(var i = 0; i <= mt; i++) {
           puddingScores[items[i].name] = pt;
         }
+      } else {
+        puddingScores[items[0].name] = 6;
+        // no second place
       } 
-      // no second place
     }
 
     // Phase 2: players lose points
@@ -482,8 +495,10 @@ sushiGoSim.GameManager = class {
         for(var i = 0; i <= mt; i++) {
           puddingScores[items[i].name] -= pt;
         }
+      } else {
+        puddingScores[items[0].name] -= 6;
+        // no second place
       } 
-      // no second place
     }
     return puddingScores;
   }

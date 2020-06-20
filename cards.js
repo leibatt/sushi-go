@@ -166,8 +166,8 @@ sushiGoSim.cards.ChopsticksCard = class extends sushiGoSim.cards.Card {
 }
 
 sushiGoSim.cards.PuddingCard = class extends sushiGoSim.cards.Card {
-  constructor(value=null) {
-    super(value);
+  constructor(value=1) {
+    super(value); // 1 by default
     this.type = "pudding";
     this.name = "pudding";
   }
