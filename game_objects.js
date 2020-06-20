@@ -37,8 +37,36 @@ sushiGoSim.Player = class {
   }
 
   addPudding(cardId) {
-    var card = this.hand.splice(cardId, 1 )[0];
+    var card = this.hand.splice(cardId, 1)[0];
     this.tableau.puddingCache.push(card);
+  }
+
+  takeChopsticks(cardId) {
+    var card = this.hand.splice(cardId, 1)[0];
+    this.tableau.activeChopsticks = card;
+  }
+
+  // cardIds = the 2 ids for the cards to take from the current hand, as an array
+  // stackIds = the stacks to add these cards to in the tableau
+  replaceChopsticks(cardIds,stackIds) {
+    var pairs = cardIds.map(cardId => {
+      return {"cardId":cardId,"stackId":stackId};
+    });
+    // sort largest card ids first, since removing them will not disrupt the other ids
+    pairs.sort((a,b) => b.cardId-a.cardId);
+    
+    if(this.tableau.activeChopsticks) {
+      // take the (2) cards from the current hand
+      pairs.forEach(cardId => {
+        var card = this.hand.splice(cardId, 1)[0];
+        this.moveCardToTableau(cardId,stackId);
+      });
+      // put the reserved chopsticks in the current hand
+      this.hand.push(this.tableau.activeChopsticks);
+      this.tableau.activeChopsticks = null;
+    } else {
+      console.log("no active chopsticks!!!");
+    }
   }
 
   clearTableau() {
@@ -53,6 +81,7 @@ sushiGoSim.Tableau = class {
   constructor(discard) {
     this.stacks = [];
     this.puddingCache = []; // for keeping puddings around
+    this.activeChopsticks = null; // for tracking use of chopsticks
     this.discard = discard;
     // dummies, just for scoring
     this.scoringCards = [new sushiGoSim.cards.EggNigiriCard(),new sushiGoSim.cards.SalmonNigiriCard(),new sushiGoSim.cards.SquidNigiriCard(), new sushiGoSim.cards.WasabiCard(), new sushiGoSim.cards.SashimiCard(), new sushiGoSim.cards.TempuraCard(), new sushiGoSim.cards.DumplingCard()];
@@ -399,6 +428,12 @@ sushiGoSim.GameManager = class {
       // TODO: make this more general
       if(this.players[playerName].hand[cardId].type === "pudding") {
         this.players[playerName].addPudding(cardId);
+      } else if(this.players[playerName].hand[cardId].type === "chopsticks") {
+        if(this.players[playerName].tableau.activeChopsticks) { // already active!
+          console.log("already have active chopsticks...");
+          return;
+        } else {
+          this.players[playerName].takeChopsticks(cardId);
       } else {
         this.players[playerName].moveCardToTableau(cardId,stackId);
       }
