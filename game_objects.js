@@ -49,17 +49,20 @@ sushiGoSim.Player = class {
   // cardIds = the 2 ids for the cards to take from the current hand, as an array
   // stackIds = the stacks to add these cards to in the tableau
   replaceChopsticks(cardIds,stackIds) {
-    var pairs = cardIds.map(cardId => {
-      return {"cardId":cardId,"stackId":stackId};
+    if(cardIds.length !== 2 || stackIds.length !== 2) {
+      throw "Did not return appropriate number of cards and/or stacks!";
+    }
+    var pairs = cardIds.map((cardId,i) => {
+      return {"cardId":cardId,"stackId":stackIds[i]};
     });
     // sort largest card ids first, since removing them will not disrupt the other ids
     pairs.sort((a,b) => b.cardId-a.cardId);
     
     if(this.tableau.activeChopsticks) {
       // take the (2) cards from the current hand
-      pairs.forEach(cardId => {
-        var card = this.hand.splice(cardId, 1)[0];
-        this.moveCardToTableau(cardId,stackId);
+      pairs.forEach(p => {
+        //var card = this.hand.splice(p.cardId, 1)[0];
+        this.moveCardToTableau(p.cardId,p.stackId);
       });
       // put the reserved chopsticks in the current hand
       this.hand.push(this.tableau.activeChopsticks);
@@ -90,7 +93,7 @@ sushiGoSim.Tableau = class {
 
   addToStack(card,stackId=null) {
     console.log(card.display(),stackId);
-    if(this.stacks.length === 0 || stackId && stackId < 0) { // make a new stack
+    if(this.stacks.length === 0 || stackId === null || stackId && stackId < 0) { // make a new stack
       this.stacks.push([card]);
       console.log("got here1");
     } else if(stackId >= 0 && stackId < this.stacks.length) { // valid stackId was passed
@@ -170,7 +173,7 @@ sushiGoSim.Tableau = class {
       var stack = this.stacks[i];
       stackDisplays.push("(stack ["+stack.map((card) => card.display()).join(", ")+"])");
     }
-    return "(tableau ["+ stackDisplays.join(", ") + "])";
+    return "(tableau ["+ stackDisplays.join(", ") + "], chopsticks active? "+ (this.activeChopsticks !== null) +")";
   }
 
   clear() {
@@ -237,25 +240,28 @@ sushiGoSim.Deck = class {
       this.cards.push(new sushiGoSim.cards.DumplingCard());
     }
 
-    // 10x Salmon Nigiri
-    for(var i = 0; i < 10; i++) {
-      this.cards.push(new sushiGoSim.cards.SalmonNigiriCard());
-    }
-
     // 6x Wasabi
     for(var i = 0; i < 6; i++) {
       this.cards.push(new sushiGoSim.cards.WasabiCard());
     }
+*/
+
+    // 10x Salmon Nigiri
+    for(var i = 0; i < 4; i++) {
+      this.cards.push(new sushiGoSim.cards.SalmonNigiriCard());
+    }
 
     // 5x Squid Nigiri
-    for(var i = 0; i < 5; i++) {
+    for(var i = 0; i < 4; i++) {
       this.cards.push(new sushiGoSim.cards.SquidNigiriCard());
     }
 
     // 5x Egg Nigiri
-    for(var i = 0; i < 5; i++) {
+    for(var i = 0; i < 4; i++) {
       this.cards.push(new sushiGoSim.cards.EggNigiriCard());
     }
+
+/*
     // 12x 2 Maki
     for(var i = 0; i < 12; i++) {
       this.cards.push(new sushiGoSim.cards.MakiCard(2));
@@ -266,7 +272,6 @@ sushiGoSim.Deck = class {
       this.cards.push(new sushiGoSim.cards.MakiCard(3));
     }
 
-*/
     // 6x 1 Maki
     for(var i = 0; i < 40; i++) {
       this.cards.push(new sushiGoSim.cards.MakiCard(1));
@@ -274,6 +279,11 @@ sushiGoSim.Deck = class {
     // 10x Pudding
     for(var i = 0; i < 20; i++) {
       this.cards.push(new sushiGoSim.cards.PuddingCard());
+    }
+*/
+    // 4x Chopsticks
+    for(var i = 0; i < 4; i++) {
+      this.cards.push(new sushiGoSim.cards.ChopsticksCard());
     }
   }
 
@@ -414,12 +424,21 @@ sushiGoSim.GameManager = class {
       5:7
     }[names.length];
     if(this.debug) {
-      cardsPerPlayer = 2;
+      cardsPerPlayer = 4;
     }
     for(var i = 0; i < cardsPerPlayer; i++) {
       for(var j = 0; j < names.length; j++) {
         this.players[names[j]].getHand().push(this.deck.drawCard());
       }
+    }
+  }
+
+  replaceChopsticks(playerName,cardIds,stackIds) {
+    if(this.currentTurn === this.playerOrder.indexOf(playerName)) {
+      this.players[playerName].replaceChopsticks(cardIds,stackIds);
+      this.endTurn();
+    } else {
+      throw "not the current player's turn: " + ["playerName:",playerName,"current turn:",this.currentTurn,"index of playerName:",this.playerOrder.indexOf(playerName)].join(" ");
     }
   }
 
@@ -430,10 +449,14 @@ sushiGoSim.GameManager = class {
         this.players[playerName].addPudding(cardId);
       } else if(this.players[playerName].hand[cardId].type === "chopsticks") {
         if(this.players[playerName].tableau.activeChopsticks) { // already active!
-          console.log("already have active chopsticks...");
-          return;
+          if(this.players[playerName].hand.length > 1) { // not the last turn
+            throw "already have active chopsticks with playerName: " + playerName;
+          } else { // player is just out of luck
+            this.players[playerName].takeChopsticks(cardId);
+          }
         } else {
           this.players[playerName].takeChopsticks(cardId);
+        }
       } else {
         this.players[playerName].moveCardToTableau(cardId,stackId);
       }
