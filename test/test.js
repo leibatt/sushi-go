@@ -1,5 +1,5 @@
 var assert = require('assert');
-var game_objects = require('../game_objects.js')
+var game_objects = require('../game_objects')
 
 describe('Card', function() {
   describe('#sumStack()', function() {

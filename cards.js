@@ -1,8 +1,8 @@
-sushiGoSim.cards = {};
+const util = require('./util');
 
-sushiGoSim.cards.Card = class {
+Card = class {
   constructor(value=null) {
-    this.id = sushiGoSim.util.uuidv4();
+    this.id = util.uuidv4();
     this.type = null; // override
     this.name = null; // override
     this.value = value;
@@ -57,7 +57,7 @@ sushiGoSim.cards.Card = class {
   static rankPlayerStacks(stacks) {
     var objs = [];
     var self = this;
-    stacks.forEach(stack => objs.push({"stack":stack,"sum":self.sumStack(stack),"idx":objs.length}));
+    stacks.forEach(stack => objs.push({"stack": stack,"sum": self.sumStack(stack),"idx": objs.length}));
     return objs.sort((objA,objB) => objB.sum - objA.sum); // sort descending
   }
 
@@ -152,8 +152,7 @@ sushiGoSim.cards.Card = class {
   }
 }
 
-// TODO: finish
-sushiGoSim.cards.ChopsticksCard = class extends sushiGoSim.cards.Card {
+ChopsticksCard = class extends Card {
   constructor(value=null) {
     super(value);
     this.type = "chopsticks";
@@ -165,7 +164,7 @@ sushiGoSim.cards.ChopsticksCard = class extends sushiGoSim.cards.Card {
   }
 }
 
-sushiGoSim.cards.PuddingCard = class extends sushiGoSim.cards.Card {
+PuddingCard = class extends Card {
   constructor(value=1) {
     super(value); // 1 by default
     this.type = "pudding";
@@ -186,7 +185,7 @@ sushiGoSim.cards.PuddingCard = class extends sushiGoSim.cards.Card {
   }
 }
 
-sushiGoSim.cards.MakiCard = class extends sushiGoSim.cards.Card {
+MakiCard = class extends Card {
   constructor(value=null) {
     super(value);
     this.type = "maki";
@@ -207,7 +206,7 @@ sushiGoSim.cards.MakiCard = class extends sushiGoSim.cards.Card {
   }
 }
 
-sushiGoSim.cards.DumplingCard = class extends sushiGoSim.cards.Card {
+DumplingCard = class extends Card {
   constructor(value=null) {
     super(value);
     this.type = "dumpling";
@@ -218,12 +217,12 @@ sushiGoSim.cards.DumplingCard = class extends sushiGoSim.cards.Card {
   score(stack) {
     if(this.isValidStack(stack)) {
       return {
-        0:0,
-        1:1,
-        2:3,
-        3:6,
-        4:10,
-        5:15
+        0: 0,
+        1: 1,
+        2: 3,
+        3: 6,
+        4: 10,
+        5: 15
       }[stack.length];
     } else {
       return 0; // not a valid dumpling stack
@@ -235,7 +234,7 @@ sushiGoSim.cards.DumplingCard = class extends sushiGoSim.cards.Card {
   }
 }
 
-sushiGoSim.cards.TempuraCard = class extends sushiGoSim.cards.Card {
+TempuraCard = class extends Card {
   constructor(value=null) {
     super(value);
     this.type = "tempura";
@@ -256,7 +255,7 @@ sushiGoSim.cards.TempuraCard = class extends sushiGoSim.cards.Card {
   }
 }
 
-sushiGoSim.cards.SashimiCard = class extends sushiGoSim.cards.Card {
+SashimiCard = class extends Card {
   constructor(value=null) {
     super(value);
     this.type = "sashimi";
@@ -277,7 +276,7 @@ sushiGoSim.cards.SashimiCard = class extends sushiGoSim.cards.Card {
   }
 }
 
-sushiGoSim.cards.WasabiCard = class extends sushiGoSim.cards.Card {
+WasabiCard = class extends Card {
   constructor(value=null) {
     super(value);
     this.type = "wasabi";
@@ -294,7 +293,7 @@ sushiGoSim.cards.WasabiCard = class extends sushiGoSim.cards.Card {
   }
 }
 
-sushiGoSim.cards.NigiriCard = class extends sushiGoSim.cards.Card {
+NigiriCard = class extends Card {
   constructor(value=null) {
     super(value);
     this.type = "nigiri";
@@ -341,24 +340,38 @@ sushiGoSim.cards.NigiriCard = class extends sushiGoSim.cards.Card {
   }
 }
 
-sushiGoSim.cards.SquidNigiriCard = class extends sushiGoSim.cards.NigiriCard {
+SquidNigiriCard = class extends NigiriCard {
   constructor(value=null) {
     super(3); // hardcode the value
     this.name = "squid";
   }
 }
 
-sushiGoSim.cards.SalmonNigiriCard = class extends sushiGoSim.cards.NigiriCard {
+SalmonNigiriCard = class extends NigiriCard {
   constructor(value=null) {
     super(2); // hardcode the value
     this.name = "salmon";
   }
 }
 
-sushiGoSim.cards.EggNigiriCard = class extends sushiGoSim.cards.NigiriCard {
+EggNigiriCard = class extends NigiriCard {
   constructor(value=null) {
     super(1); // hardcode the value
     this.name = "egg";
   }
 }
 
+module.exports = {
+  Card: Card,
+  ChopsticksCard: ChopsticksCard,
+  DumplingCard: DumplingCard,
+  SashimiCard: SashimiCard,
+  TempuraCard: TempuraCard,
+  NigiriCard: NigiriCard,
+  WasabiCard: WasabiCard,
+  SquidNigiriCard: SquidNigiriCard,
+  SalmonNigiriCard: SalmonNigiriCard,
+  EggNigiriCard: NigiriCard,
+  MakiCard: MakiCard,
+  PuddingCard: PuddingCard
+};

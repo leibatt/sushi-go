@@ -1,14 +1,16 @@
+const cards = require('./cards'); // SushiGo card classes
+const util = require('./util');
 
-sushiGoSim.Player = class {
+Player = class {
   constructor(discard,name=null) {
-    if(name) {
+    if(name !== null) {
       this.name = name;
     } else {
-      this.name = sushiGoSim.util.uuidv4();
+      this.name = util.uuidv4();
     }
     this.discard = discard;
     this.hand = [];
-    this.tableau = new sushiGoSim.Tableau(discard);
+    this.tableau = new Tableau(discard);
   }
 
   display() {
@@ -53,7 +55,7 @@ sushiGoSim.Player = class {
       throw "Did not return appropriate number of cards and/or stacks!";
     }
     var pairs = cardIds.map((cardId,i) => {
-      return {"cardId":cardId,"stackId":stackIds[i]};
+      return {"cardId": cardId,"stackId": stackIds[i]};
     });
     // sort largest card ids first, since removing them will not disrupt the other ids
     pairs.sort((a,b) => b.cardId-a.cardId);
@@ -78,17 +80,15 @@ sushiGoSim.Player = class {
 }
 
 
-
-
-sushiGoSim.Tableau = class {
+Tableau = class {
   constructor(discard) {
     this.stacks = [];
     this.puddingCache = []; // for keeping puddings around
     this.activeChopsticks = null; // for tracking use of chopsticks
     this.discard = discard;
     // dummies, just for scoring
-    this.scoringCards = [new sushiGoSim.cards.EggNigiriCard(),new sushiGoSim.cards.SalmonNigiriCard(),new sushiGoSim.cards.SquidNigiriCard(), new sushiGoSim.cards.WasabiCard(), new sushiGoSim.cards.SashimiCard(), new sushiGoSim.cards.TempuraCard(), new sushiGoSim.cards.DumplingCard()];
-    // require special scoring: new sushiGoSim.cards.MakiCard(), new sushiGoSim.cards.PuddingCard()
+    this.scoringCards = [new cards.EggNigiriCard(),new cards.SalmonNigiriCard(),new cards.SquidNigiriCard(), new cards.WasabiCard(), new cards.SashimiCard(), new cards.TempuraCard(), new cards.DumplingCard()];
+    // require special scoring: new cards.MakiCard(), new cards.PuddingCard()
   }
 
   addToStack(card,stackId=null) {
@@ -119,11 +119,11 @@ sushiGoSim.Tableau = class {
   }
 
   computePuddingScore() {
-    return this.computeStackScoreForCardType(new sushiGoSim.cards.PuddingCard(),this.puddingCache);
+    return this.computeStackScoreForCardType(new cards.PuddingCard(),this.puddingCache);
   }
 
   computeMakiScore() {
-    return this.stacks.reduce((acc,stack) => acc + this.computeStackScoreForCardType(new sushiGoSim.cards.MakiCard(),stack),0);
+    return this.stacks.reduce((acc,stack) => acc + this.computeStackScoreForCardType(new cards.MakiCard(),stack),0);
   }
 
   // compute the first valid score found for this stack
@@ -206,16 +206,19 @@ sushiGoSim.Tableau = class {
 * 4x Chopsticks
 */
 
-sushiGoSim.Deck = class {
-  constructor() {
+Deck = class {
+  constructor(debug=false) {
     this.cards = [];
-    //this.makeStandardDeck();
-    this.makeTestDeck();
+    if(debug) {
+      this.makeTestDeck();
+    } else {
+      this.makeStandardDeck();
+    }
     this.shuffle();
   }
 
   shuffle() {
-    sushiGoSim.util.shuffle(this.cards);
+    util.shuffle(this.cards);
   }
 
   // removes and returns the *last* card in the array!
@@ -227,125 +230,125 @@ sushiGoSim.Deck = class {
 /*
     // 14x Tempura
     for(var i = 0; i < 14; i++) {
-      this.cards.push(new sushiGoSim.cards.TempuraCard());
+      this.cards.push(new cards.TempuraCard());
     }
 
     // 14x Sashimi
     for(var i = 0; i < 14; i++) {
-      this.cards.push(new sushiGoSim.cards.SashimiCard());
+      this.cards.push(new cards.SashimiCard());
     }
 
     // 14x Dumpling
     for(var i = 0; i < 14; i++) {
-      this.cards.push(new sushiGoSim.cards.DumplingCard());
+      this.cards.push(new cards.DumplingCard());
     }
 
     // 6x Wasabi
     for(var i = 0; i < 6; i++) {
-      this.cards.push(new sushiGoSim.cards.WasabiCard());
+      this.cards.push(new cards.WasabiCard());
     }
 */
 
     // 10x Salmon Nigiri
     for(var i = 0; i < 4; i++) {
-      this.cards.push(new sushiGoSim.cards.SalmonNigiriCard());
+      this.cards.push(new cards.SalmonNigiriCard());
     }
 
     // 5x Squid Nigiri
     for(var i = 0; i < 4; i++) {
-      this.cards.push(new sushiGoSim.cards.SquidNigiriCard());
+      this.cards.push(new cards.SquidNigiriCard());
     }
 
     // 5x Egg Nigiri
     for(var i = 0; i < 4; i++) {
-      this.cards.push(new sushiGoSim.cards.EggNigiriCard());
+      this.cards.push(new cards.EggNigiriCard());
     }
 
 /*
     // 12x 2 Maki
     for(var i = 0; i < 12; i++) {
-      this.cards.push(new sushiGoSim.cards.MakiCard(2));
+      this.cards.push(new cards.MakiCard(2));
     }
 
     // 8x 3 Maki
     for(var i = 0; i < 20; i++) {
-      this.cards.push(new sushiGoSim.cards.MakiCard(3));
+      this.cards.push(new cards.MakiCard(3));
     }
 
     // 6x 1 Maki
     for(var i = 0; i < 40; i++) {
-      this.cards.push(new sushiGoSim.cards.MakiCard(1));
+      this.cards.push(new cards.MakiCard(1));
     }
     // 10x Pudding
     for(var i = 0; i < 20; i++) {
-      this.cards.push(new sushiGoSim.cards.PuddingCard());
+      this.cards.push(new cards.PuddingCard());
     }
 */
     // 4x Chopsticks
     for(var i = 0; i < 4; i++) {
-      this.cards.push(new sushiGoSim.cards.ChopsticksCard());
+      this.cards.push(new cards.ChopsticksCard());
     }
   }
 
   makeStandardDeck() {
     // 14x Tempura
     for(var i = 0; i < 14; i++) {
-      this.cards.push(new sushiGoSim.cards.TempuraCard());
+      this.cards.push(new cards.TempuraCard());
     }
 
     // 14x Sashimi
     for(var i = 0; i < 14; i++) {
-      this.cards.push(new sushiGoSim.cards.SashimiCard());
+      this.cards.push(new cards.SashimiCard());
     }
 
     // 14x Dumpling
     for(var i = 0; i < 14; i++) {
-      this.cards.push(new sushiGoSim.cards.DumplingCard());
+      this.cards.push(new cards.DumplingCard());
     }
 
     // 12x 2 Maki
     for(var i = 0; i < 12; i++) {
-      this.cards.push(new sushiGoSim.cards.MakiCard(2));
+      this.cards.push(new cards.MakiCard(2));
     }
 
     // 8x 3 Maki
     for(var i = 0; i < 8; i++) {
-      this.cards.push(new sushiGoSim.cards.MakiCard(3));
+      this.cards.push(new cards.MakiCard(3));
     }
 
     // 6x 1 Maki
     for(var i = 0; i < 6; i++) {
-      this.cards.push(new sushiGoSim.cards.MakiCard(1));
+      this.cards.push(new cards.MakiCard(1));
     }
 
     // 10x Salmon Nigiri
     for(var i = 0; i < 10; i++) {
-      this.cards.push(new sushiGoSim.cards.SalmonNigiriCard());
+      this.cards.push(new cards.SalmonNigiriCard());
     }
 
     // 5x Squid Nigiri
     for(var i = 0; i < 5; i++) {
-      this.cards.push(new sushiGoSim.cards.SquidNigiriCard());
+      this.cards.push(new cards.SquidNigiriCard());
     }
 
     // 5x Egg Nigiri
     for(var i = 0; i < 5; i++) {
-      this.cards.push(new sushiGoSim.cards.EggNigiriCard());
+      this.cards.push(new cards.EggNigiriCard());
     }
 
     // 10x Pudding
     for(var i = 0; i < 10; i++) {
-      this.cards.push(new sushiGoSim.cards.PuddingCard());
+      this.cards.push(new cards.PuddingCard());
     }
 
     // 6x Wasabi
     for(var i = 0; i < 6; i++) {
-      this.cards.push(new sushiGoSim.cards.WasabiCard());
+      this.cards.push(new cards.WasabiCard());
     }
 
     // 4x Chopsticks
     for(var i = 0; i < 4; i++) {
-      this.cards.push(new sushiGoSim.cards.ChopsticksCard());
+      this.cards.push(new cards.ChopsticksCard());
     }
   }
 
@@ -354,7 +357,7 @@ sushiGoSim.Deck = class {
   }
 }
 
-sushiGoSim.GameManager = class {
+GameManager = class {
 
   // takes list of player names as input
   constructor(players=null,debug=false) {
@@ -366,14 +369,14 @@ sushiGoSim.GameManager = class {
     this.playerOrder = [];
     this.scores = {};
     this.discard = [];
-    if(players) {
+    if(players !== null) {
       players.forEach((name) => {
         this.createPlayer(name);
         this.playerOrder.push(name);
         this.scores[name] = [];
       });
     }
-    this.deck = new sushiGoSim.Deck();
+    this.deck = new Deck(debug);
     this.assignHands();
   }
 
@@ -391,7 +394,7 @@ sushiGoSim.GameManager = class {
   }
 
   createPlayer(name=null) {
-    var player = new sushiGoSim.Player(this.discard,name);
+    var player = new Player(this.discard,name);
     this.players[player.getName()] = player;
     return player;
   }
@@ -418,10 +421,10 @@ sushiGoSim.GameManager = class {
       throw "Insufficient number of players: "+names.length;
     }
     var cardsPerPlayer = {
-      2:10,
-      3:9,
-      4:8,
-      5:7
+      2: 10,
+      3: 9,
+      4: 8,
+      5: 7
     }[names.length];
     if(this.debug) {
       cardsPerPlayer = 4;
@@ -438,7 +441,7 @@ sushiGoSim.GameManager = class {
       this.players[playerName].replaceChopsticks(cardIds,stackIds);
       this.endTurn();
     } else {
-      throw "not the current player's turn: " + ["playerName:",playerName,"current turn:",this.currentTurn,"index of playerName:",this.playerOrder.indexOf(playerName)].join(" ");
+      throw "not the current player's turn: " + ["playerName: ",playerName,"current turn: ",this.currentTurn,"index of playerName: ",this.playerOrder.indexOf(playerName)].join(" ");
     }
   }
 
@@ -462,7 +465,7 @@ sushiGoSim.GameManager = class {
       }
       this.endTurn();
     } else {
-      throw "not the current player's turn: " + ["playerName:",playerName,"current turn:",this.currentTurn,"index of playerName:",this.playerOrder.indexOf(playerName)].join(" ");
+      throw "not the current player's turn: " + ["playerName: ",playerName,"current turn: ",this.currentTurn,"index of playerName: ",this.playerOrder.indexOf(playerName)].join(" ");
     }
   }
 
@@ -632,7 +635,7 @@ sushiGoSim.GameManager = class {
    var scoreStrings = [];
     for(var i = 0; i < this.playerOrder.length; i++) {
       var playerName = this.playerOrder[i];
-      scoreStrings.push("(score "+[playerName, sushiGoSim.util.sum(this.scores[playerName])].join(", ")+")");
+      scoreStrings.push("(score "+[playerName, util.sum(this.scores[playerName])].join(", ")+")");
     }
     return "final scores : ["+scoreStrings.join(", ")+"]";
   }
@@ -658,22 +661,9 @@ sushiGoSim.GameManager = class {
   }
 }
 
-/*
 module.exports = {
-  Player:Player,
-  Tableau:Tableau,
-  Hand:Hand,
-  Card:Card,
-  ChopsticksCard:ChopsticksCard,
-  DumplingCard:DumplingCard,
-  SashimiCard:SashimiCard,
-  TempuraCard:TempuraCard,
-  NigiriCard:NigiriCard,
-  WasabiCard:WasabiCard,
-  SquidNigiriCard:SquidNigiriCard,
-  SalmonNigiriCard:SalmonNigiriCard,
-  EggNigiriCard:NigiriCard,
-  MakiCard:MakiCard,
-  PuddingCard:PuddingCard
+  Player: Player,
+  Tableau: Tableau,
+  Card: Card,
+  GameManager: GameManager
 };
-*/
