@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/leibatt/sushi-go#readme",
   "dependencies": {
+    "chai": "^4.2.0",
     "mocha": "^4.0.1"
   }
 }
