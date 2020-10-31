@@ -19,5 +19,8 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
 
+    - name: Install Node.js dependencies
+      run: yarn --frozen-lockfile
+
     - name: Test coverage
       run: yarn jest test/jest-tests/ --collectCoverage=true
