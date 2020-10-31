@@ -285,7 +285,7 @@ module.exports = {
   WasabiCard: WasabiCard,
   SquidNigiriCard: SquidNigiriCard,
   SalmonNigiriCard: SalmonNigiriCard,
-  EggNigiriCard: NigiriCard,
+  EggNigiriCard: EggNigiriCard,
   MakiCard: MakiCard,
   PuddingCard: PuddingCard
 };
