@@ -1,14 +1,63 @@
 const cards = require("../../cards")
 
+describe("Wasabi Card", function() {
+  test("Check type is 'wasabi'", function() {
+    let card = new cards.WasabiCard();
+    expect(card.type).toEqual("wasabi");
+  });
+  test("#isRelevantStack only Nigiri cards are relevant", function() {
+    let wcard = new cards.WasabiCard();
+    let wcard2 = new cards.WasabiCard();
+    let ncard = new cards.NigiriCard(1);
+    let ncard2 = new cards.NigiriCard(2);
+    let card = new cards.Card(1);
+    expect(wcard.isRelevantStack([])).toBeTruthy();
+    expect(wcard.isRelevantStack([ncard])).toBeTruthy();
+    expect(wcard.isRelevantStack([ncard,ncard2])).toBeTruthy();
+    expect(wcard.isRelevantStack([card])).toBeFalsy();
+    expect(wcard.isRelevantStack([wcard2])).toBeFalsy();
+  });
+  test("#isValidStack No more than one Nigiri card per stack", function() {
+    let wcard = new cards.WasabiCard();
+    let wcard2 = new cards.WasabiCard();
+    let ncard = new cards.NigiriCard(1);
+    let ncard2 = new cards.NigiriCard(2);
+    expect(wcard.isValidStack([])).toBeTruthy();
+    expect(wcard.isValidStack([ncard])).toBeTruthy();
+    expect(wcard.isValidStack([ncard2])).toBeTruthy();
+    expect(wcard.isValidStack([ncard,ncard2])).toBeFalsy();
+    expect(wcard.isValidStack([wcard2])).toBeFalsy();
+  });
+});
+
 describe("Nigiri Cards", function() {
   describe("Nigiri Base", function() {
     test("Check type is 'nigiri'", function() {
       let card = new cards.NigiriCard();
       expect(card.type).toEqual("nigiri");
     });
-
-    // TODO: test isRelevantStack function
-    //   type is nigiri, or wasabi, with count of wasabi=1
+    test("#isRelevantStack only Wasabi cards are relevant", function() {
+      let ncard = new cards.NigiriCard(1);
+      let ncard2 = new cards.NigiriCard(2);
+      let wcard = new cards.WasabiCard();
+      let wcard2 = new cards.WasabiCard();
+      let card = new cards.Card(1);
+      expect(ncard.isRelevantStack([])).toBeTruthy();
+      expect(ncard.isRelevantStack([wcard])).toBeTruthy();
+      expect(ncard.isRelevantStack([wcard,wcard2])).toBeTruthy();
+      expect(ncard.isRelevantStack([card])).toBeFalsy();
+      expect(ncard.isRelevantStack([ncard2])).toBeFalsy();
+  });
+    test("#isValidStack No more than one Wasabi card per stack", function() {
+      let card = new cards.NigiriCard(1);
+      let card2 = new cards.NigiriCard(2);
+      let card3 = new cards.WasabiCard();
+      expect(card.isValidStack([])).toBeTruthy();
+      expect(card.isValidStack([card2])).toBeFalsy();
+      expect(card2.isValidStack([card])).toBeFalsy();
+      expect(card.isValidStack([card2,card3])).toBeFalsy();
+      expect(card.isValidStack([card3])).toBeTruthy();
+    });
     // TODO: test score function
     //   make sure for a relevant stack, we return just the value of the cards in the stack
     //   make sure for a irrelevant stack, we return 0

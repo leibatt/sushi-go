@@ -202,8 +202,20 @@ WasabiCard = class extends Card {
     return 0;
   }
 
+  // only pair with *one* nigiri
   isValidStack(stack) {
-    return super.isRelevantStack(stack) && stack.length === 1; // only consider the case with 1 wasabi
+    return this.isRelevantStack(stack) && stack.length <= 1;
+  }
+
+  // only pair with nigiri
+  isRelevantStack(stack) {
+    for(let i = 0; i < stack.length; i++) {
+      let card = stack[i];
+      if(card.type !== "nigiri") {
+        return false;
+      }
+    }
+    return true;
   }
 }
 
@@ -229,28 +241,19 @@ NigiriCard = class extends Card {
     return 0;
   }
 
+  isValidStack(stack) {
+    return this.isRelevantStack(stack) && stack.length <= 1;
+  }
+
+  // only pair with wasabi
   isRelevantStack(stack) {
-    var wasabi_count = 0;
-    var nigiri_count = 0;
-    for(var i = 0; i < stack.length; i++) {
-      var card = stack[i];
-      if(card.type === "wasabi") {
-        wasabi_count++;
-        if(wasabi_count > 1) { // validity rule: at most 1 wasabi in the stack
-          return false;
-        }
-      }
-      else if(card.type === this.type) {
-        nigiri_count++;
-        if(wasabi_count === 1 && nigiri_count > 1) { // validity rule: only one nigiri can be paired with one wasabi
-          return false;
-        }
+    for(let i = 0; i < stack.length; i++) {
+      let card = stack[i];
+      if(card.type !== "wasabi") {
+        return false;
       }
     }
-
-    // ignore the valid wasabi stack case (exactly 1 wasabi card in the stack, and nothing else)
-    return (nigiri_count+wasabi_count) === stack.length // nigiri and wasabi only
-      && wasabi_count <= 1 && nigiri_count <= 1;
+    return true;
   }
 }
 
