@@ -226,9 +226,22 @@ NigiriCard = class extends Card {
     this.name = null; // override
   }
 
-  // assuming the stack is valid
+  // assuming the stack only contains nigiri or wasabi
   score(stack) {
-    if(this.isValidStack(stack)) {
+    let wasabi_count = 0;
+    let nigiri_count = 0;
+    for(let i = 0; i < stack.length; i++) {
+      let card = stack[i];
+      if(card.type === "wasabi") {
+        wasabi_count++;
+      } else if (card.type === this.type) {
+        nigiri_count++;
+      }
+    }
+
+    // is there only one nigiri, and at most one wasabi?
+    if((wasabi_count + nigiri_count) === stack.length &&
+      wasabi_count <= 1 && nigiri_count === 1) { 
       var self = this;
       if(stack.some(card => card.name === self.name)) { // the card is of the correct nigiri type
         if(stack.some(card => card.type === "wasabi")) { // there is wasabi
