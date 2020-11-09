@@ -67,10 +67,11 @@ Card = class {
 }
 
 ChopsticksCard = class extends Card {
+  static typeName = "chopsticks";
   constructor(value=null) {
     super(value);
-    this.type = "chopsticks";
-    this.name = "chopsticks";
+    this.type = ChopsticksCard.typeName;
+    this.name = ChopsticksCard.typeName;
   }
 
   score(stack) {
@@ -79,10 +80,11 @@ ChopsticksCard = class extends Card {
 }
 
 PuddingCard = class extends Card {
+  static typeName = "pudding";
   constructor(value=1) {
     super(value); // 1 by default
-    this.type = "pudding";
-    this.name = "pudding";
+    this.type = PuddingCard.typeName;
+    this.name = PuddingCard.typeName;
   }
 
   // assuming the stack is valid
@@ -100,10 +102,11 @@ PuddingCard = class extends Card {
 }
 
 MakiCard = class extends Card {
+  static typeName = "maki";
   constructor(value=null) {
     super(value);
-    this.type = "maki";
-    this.name = "maki";
+    this.type = MakiCard.typeName;
+    this.name = MakiCard.typeName;
   }
 
   // assuming the stack is valid
@@ -121,10 +124,11 @@ MakiCard = class extends Card {
 }
 
 DumplingCard = class extends Card {
+  static typeName = "dumpling";
   constructor(value=null) {
     super(value);
-    this.type = "dumpling";
-    this.name = "dumpling";
+    this.type = DumplingCard.typeName;
+    this.name = DumplingCard.typeName;
   }
 
   // assuming the stack is valid
@@ -149,10 +153,11 @@ DumplingCard = class extends Card {
 }
 
 TempuraCard = class extends Card {
+  static typeName = "tempura";
   constructor(value=null) {
     super(value);
-    this.type = "tempura";
-    this.name = "tempura";
+    this.type = TempuraCard.typeName;
+    this.name = TempuraCard.typeName;
   }
 
   // assuming the stack is valid
@@ -170,10 +175,11 @@ TempuraCard = class extends Card {
 }
 
 SashimiCard = class extends Card {
+  static typeName = "sashimi";
   constructor(value=null) {
     super(value);
-    this.type = "sashimi";
-    this.name = "sashimi";
+    this.type = SashimiCard.typeName;
+    this.name = SashimiCard.typeName;
   }
 
   // assuming the stack is valid
