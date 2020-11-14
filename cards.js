@@ -18,7 +18,7 @@ Card = class {
   }
 
   isRelevantStack(stack) {
-    var self = this;
+    let self = this;
     return stack.every(card => card.type === self.type);
   }
 
@@ -31,10 +31,7 @@ Card = class {
   }
 
   static findMaxValueCard(stack) {
-    if(stack.length === 0) {
-      return null;
-    }
-    return this.rankCardsByValue(stack)[0];
+    return stack.length === 0 ? null : this.rankCardsByValue(stack)[0];
   }
 
   // given a list of valid stacks, find the player (i.e., stack index) with the largest sum
@@ -42,10 +39,10 @@ Card = class {
     if(stacks.length === 0) {
       return null;
     }
-    var currSum = null;
-    var idx = 0;
-    for(var i = 0; i < stacks.length; i++) {
-      var sum = this.sumStack(stacks[i]);
+    let currSum = null;
+    let idx = 0;
+    for(let i = 0; i < stacks.length; i++) {
+      let sum = this.sumStack(stacks[i]);
       if(currSum === null || sum > currSum) {
         idx = i;
         currSum = sum;
@@ -55,8 +52,8 @@ Card = class {
   }
 
   static rankPlayerStacks(stacks) {
-    var objs = [];
-    var self = this;
+    let objs = [];
+    let self = this;
     stacks.forEach(stack => objs.push({"stack": stack,"sum": self.sumStack(stack),"idx": objs.length}));
     return objs.sort((objA,objB) => objB.sum - objA.sum); // sort descending
   }
@@ -67,17 +64,13 @@ Card = class {
 
   // returns the index of the first card of the requested type, or -1 if not found
   static indexOfType(stack,type) {
-    for(let i = 0; i < stack.length; i++) {
-      if(stack[i].type === type) {
-        return i;
-      }
-    }
-    return -1;
+    return stack.map(c => c.type).indexOf(type);
   }
 }
 
 ChopsticksCard = class extends Card {
   static typeName = "chopsticks";
+
   constructor(value=null) {
     super(value);
     this.type = ChopsticksCard.typeName;
@@ -91,6 +84,7 @@ ChopsticksCard = class extends Card {
 
 PuddingCard = class extends Card {
   static typeName = "pudding";
+
   constructor(value=1) {
     super(value); // 1 by default
     this.type = PuddingCard.typeName;
@@ -100,7 +94,7 @@ PuddingCard = class extends Card {
   // assuming the stack is valid
   // only invoke at the end of the round to calculate the maximum pudding score
   score(stack) {
-    var self = this;
+    let self = this;
     //console.log("calling scoring method for PuddingCard class");
     //console.log([stack,"is valid stack?",this.isValidStack(stack),"score?",stack.reduce((acc,c) => c.type === self.type ? c.value + acc : acc,0)]);
     if(this.isValidStack(stack)) {
@@ -113,6 +107,7 @@ PuddingCard = class extends Card {
 
 MakiCard = class extends Card {
   static typeName = "maki";
+
   constructor(value=null) {
     super(value);
     this.type = MakiCard.typeName;
@@ -122,11 +117,10 @@ MakiCard = class extends Card {
   // assuming the stack is valid
   // only invoke at the end of the round to calculate the maximum maki score
   score(stack) {
-    var self = this;
     //console.log("calling scoring method for MakiCard class");
     //console.log([stack,"is valid stack?",this.isValidStack(stack),"score?",stack.reduce((acc,c) => c.type === self.type ? c.value + acc : acc,0)]);
     if(this.isValidStack(stack)) {
-      return stack.reduce((acc,c) => c.type === self.type ? c.value + acc : acc,0);
+      return stack.reduce((acc,c) => c.type === MakiCard.typeName ? c.value + acc : acc,0);
     } else {
       return 0; // score should be done compared to everyone else
     }
@@ -135,6 +129,7 @@ MakiCard = class extends Card {
 
 DumplingCard = class extends Card {
   static typeName = "dumpling";
+
   constructor(value=null) {
     super(value);
     this.type = DumplingCard.typeName;
@@ -164,6 +159,7 @@ DumplingCard = class extends Card {
 
 TempuraCard = class extends Card {
   static typeName = "tempura";
+
   constructor(value=null) {
     super(value);
     this.type = TempuraCard.typeName;
@@ -172,11 +168,7 @@ TempuraCard = class extends Card {
 
   // assuming the stack is valid
   score(stack) {
-    if(this.isValidStack(stack) && stack.length === 2) {
-      return 5;
-    } else {
-      return 0;
-    }
+    return this.isValidStack(stack) && stack.length === 2 ? 5 : 0;
   }
 
   isValidStack(stack) {
@@ -186,6 +178,7 @@ TempuraCard = class extends Card {
 
 SashimiCard = class extends Card {
   static typeName = "sashimi";
+
   constructor(value=null) {
     super(value);
     this.type = SashimiCard.typeName;
@@ -194,11 +187,7 @@ SashimiCard = class extends Card {
 
   // assuming the stack is valid
   score(stack) {
-    if(this.isValidStack(stack) && stack.length === 3) {
-      return 10;
-    } else {
-      return 0;
-    }
+    return this.isValidStack(stack) && stack.length === 3 ? 10 : 0;
   }
 
   isValidStack(stack) {
@@ -208,6 +197,7 @@ SashimiCard = class extends Card {
 
 WasabiCard = class extends Card {
   static typeName = "wasabi";
+
   constructor(value=null) {
     super(value);
     this.type = WasabiCard.typeName;
@@ -230,6 +220,8 @@ WasabiCard = class extends Card {
 
 NigiriCard = class extends Card {
   static typeName = "nigiri";
+
+
   constructor(value=null) {
     super(value);
     this.type = NigiriCard.typeName;
@@ -253,13 +245,7 @@ NigiriCard = class extends Card {
       wasabi_count <= 1 && nigiri_count === 1) { 
       let nidx = Card.indexOfType(stack,NigiriCard.typeName);
       let widx = Card.indexOfType(stack,WasabiCard.typeName);
-      if(nidx >= 0) { // the card is of the correct nigiri type
-        if(widx >= 0) { // there is wasabi
-          return 3 * stack[nidx].value;
-        } else {
-          return stack[nidx].value;
-        }
-      }
+      return  nidx >= 0 ? (widx >= 0 ? 3*stack[nidx].value : stack[nidx].value) : 0;
     }
     return 0;
   }
@@ -297,21 +283,21 @@ NigiriCard = class extends Card {
 
 SquidNigiriCard = class extends NigiriCard {
   constructor(value=null) {
-    super(3); // hardcode the value
+    super(3);
     this.name = "squid";
   }
 }
 
 SalmonNigiriCard = class extends NigiriCard {
   constructor(value=null) {
-    super(2); // hardcode the value
+    super(2);
     this.name = "salmon";
   }
 }
 
 EggNigiriCard = class extends NigiriCard {
   constructor(value=null) {
-    super(1); // hardcode the value
+    super(1);
     this.name = "egg";
   }
 }
