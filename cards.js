@@ -64,6 +64,16 @@ Card = class {
   static sumStack(stack) {
     return stack.reduce((sum,card) => sum + card.value,0);
   }
+
+  // returns the index of the first card of the requested type, or -1 if not found
+  static indexOfType(stack,type) {
+    for(let i = 0; i < stack.length; i++) {
+      if(stack[i].type === type) {
+        return i;
+      }
+    }
+    return -1;
+  }
 }
 
 ChopsticksCard = class extends Card {
@@ -206,7 +216,7 @@ WasabiCard = class extends Card {
 
   // assuming the stack is valid
   score(stack) {
-    return 0;
+    return NigiriCard.scoreHelper(stack);
   }
 
   isValidStack(stack) {
@@ -226,19 +236,28 @@ NigiriCard = class extends Card {
     this.name = null; // override
   }
 
-  // assuming the stack only contains nigiri or wasabi
   score(stack) {
+    return NigiriCard.scoreHelper(stack);
+  }
+
+  // assuming the stack only contains nigiri or wasabi
+  static scoreHelper(stack) {
     let wasabi_count = 0;
     let nigiri_count = 0;
+    stack.forEach(c => {
+      wasabi_count += WasabiCard.typeName === c.type ? 1 : 0;
+      nigiri_count += NigiriCard.typeName === c.type ? 1 : 0;
+    });
     // is there only one nigiri, and at most one wasabi?
     if((wasabi_count + nigiri_count) === stack.length &&
       wasabi_count <= 1 && nigiri_count === 1) { 
-      var self = this;
-      if(stack.some(card => card.name === self.name)) { // the card is of the correct nigiri type
-        if(stack.some(card => card.type === WasabiCard.typeName)) { // there is wasabi
-          return 3 * this.value;
+      let nidx = Card.indexOfType(stack,NigiriCard.typeName);
+      let widx = Card.indexOfType(stack,WasabiCard.typeName);
+      if(nidx >= 0) { // the card is of the correct nigiri type
+        if(widx >= 0) { // there is wasabi
+          return 3 * stack[nidx].value;
         } else {
-          return this.value;
+          return stack[nidx].value;
         }
       }
     }

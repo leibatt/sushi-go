@@ -22,7 +22,7 @@
   "homepage": "https://github.com/leibatt/sushi-go#readme",
   "dependencies": {
     "chai": "^4.2.0",
-    "mocha": "^4.0.1"
+    "mocha": "^8.2.0"
   },
   "devDependencies": {
     "jest": "^26.6.1"

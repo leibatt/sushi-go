@@ -3,15 +3,18 @@ const cards = require("../../cards")
 describe("Wasabi Card", function() {
   test("Check type is 'wasabi'", function() {
     let card = new cards.WasabiCard();
-    expect(card.type).toEqual("wasabi");
+    expect(WasabiCard.typeName).toEqual("wasabi");
+    expect(card.type).toEqual(WasabiCard.typeName);
   });
+  // NOTE: wasabi reuses the NigiriCard score, isValidStack, and isRelevantStack functions
 });
 
 describe("Nigiri Cards", function() {
   describe("Nigiri Base", function() {
     test("Check type is 'nigiri'", function() {
       let card = new cards.NigiriCard();
-      expect(card.type).toEqual("nigiri");
+      expect(NigiriCard.typeName).toEqual("nigiri");
+      expect(card.type).toEqual(NigiriCard.typeName);
     });
     test("#isRelevantStack only Wasabi and Nigiri cards are relevant", function() {
       let ncard = new cards.NigiriCard(1);
@@ -37,22 +40,45 @@ describe("Nigiri Cards", function() {
       expect(ncard.isValidStack([wcard,wcard2])).toBeFalsy();
     });
     describe("#score",function() {
-    // TODO: test score function
-    //   make sure for a relevant stack, we return just the value of the cards in the stack
-    //   make sure for a irrelevant stack, we return 0
+      test("Check that stacks with one nigiri receive score equal to card value", function() {
+        let ncard = new cards.NigiriCard(1);
+        let ncard2 = new cards.NigiriCard(2);
+        let ncard3 = new cards.NigiriCard(3);
+        expect(ncard.score([ncard2])).toEqual(ncard2.value);
+        expect(ncard.score([ncard3])).toEqual(ncard3.value);
+      });
+      test("Check that stacks with one nigiri and one wasabi receive score equal to card value x 3", function() {
+        let ncard = new cards.NigiriCard(1);
+        let ncard2 = new cards.NigiriCard(2);
+        let ncard3 = new cards.NigiriCard(3);
+        let wcard = new cards.WasabiCard();
+        expect(ncard2.score([ncard,wcard])).toEqual(3*ncard.value);
+        expect(ncard.score([ncard2,wcard])).toEqual(3*ncard2.value);
+        expect(ncard.score([ncard3,wcard])).toEqual(3*ncard3.value);
+      });
+      test("Check that stacks with more than one nigiri receive a score of zero", function() {
+        let ncard = new cards.NigiriCard(1);
+        let ncard2 = new cards.NigiriCard(2);
+        let ncard3 = new cards.NigiriCard(3);
+        let card = new cards.Card(1);
+        let wcard = new cards.WasabiCard();
+        expect(ncard.score([ncard2,ncard3])).toEqual(0);
+      });
       test("Check that stacks with zero nigiri receive a score of zero", function() {
         let ncard = new cards.NigiriCard(1);
+        let ncard2 = new cards.NigiriCard(2);
         let card = new cards.Card(1);
         let wcard = new cards.WasabiCard();
         expect(ncard.score([card])).toEqual(0);
         expect(ncard.score([wcard])).toEqual(0);
+        expect(ncard.score([card,ncard2])).toEqual(0);
       });
     });
   });
   describe("Egg Nigiri", function() {
     test("Check type is 'nigiri', name is 'egg', and value=1", function() {
       let card = new cards.EggNigiriCard();
-      expect(card.type).toEqual("nigiri");
+      expect(card.type).toEqual(NigiriCard.typeName);
       expect(card.name).toEqual("egg");
       expect(card.value).toEqual(1);
     });
@@ -60,9 +86,17 @@ describe("Nigiri Cards", function() {
   describe("Salmon Nigiri", function() {
     test("Check type is 'nigiri', name is 'salmon', and value=2", function() {
       let card = new cards.SalmonNigiriCard();
-      expect(card.type).toEqual("nigiri");
+      expect(card.type).toEqual(NigiriCard.typeName);
       expect(card.name).toEqual("salmon");
       expect(card.value).toEqual(2);
+    });
+  });
+  describe("Squid Nigiri", function() {
+    test("Check type is 'nigiri', name is 'squid', and value=3", function() {
+      let card = new cards.SquidNigiriCard();
+      expect(card.type).toEqual(NigiriCard.typeName);
+      expect(card.name).toEqual("squid");
+      expect(card.value).toEqual(3);
     });
   });
 });
