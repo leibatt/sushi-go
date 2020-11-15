@@ -1,5 +1,34 @@
 const cards = require("../../cards")
 
+describe("Dumpling Card", function() {
+  test("Check type is 'dumpling'", function() {
+    let card = new cards.DumplingCard();
+    expect(DumplingCard.typeName).toEqual("dumpling");
+    expect(card.type).toEqual(DumplingCard.typeName);
+  });
+  // NOTE: uses default isRelevantStack
+  test("#isValidStack only allows five dumplings or less",function() {
+    let dcard = new cards.DumplingCard();
+    let allDumplings = [];
+    for(let i = 0; i < 5; i++) {
+      allDumplings.push(new cards.DumplingCard());
+      expect(dcard.isValidStack(allDumplings)).toBeTruthy();
+    }
+    allDumplings.push(new cards.DumplingCard());
+    expect(dcard.isValidStack(allDumplings)).toBeFalsy();
+  });
+  test("#score scale is correct for up to five dumplings, zero otherwise",function() {
+    let dcard = new cards.DumplingCard();
+    let allDumplings = [];
+    let expectedScores = [0,1,3,6,10,15];
+    while(allDumplings.length <= 5) {
+      expect(dcard.score(allDumplings)).toEqual(expectedScores[allDumplings.length]);
+      allDumplings.push(new cards.DumplingCard());
+    }
+    expect(dcard.score(allDumplings)).toEqual(0);
+  });
+});
+
 describe("Wasabi Card", function() {
   test("Check type is 'wasabi'", function() {
     let card = new cards.WasabiCard();
@@ -103,6 +132,11 @@ describe("Nigiri Cards", function() {
 
 describe("Card", function() {
   describe("#isRelevantStack()", function() {
+    test("empty stack should be relevant", function() {
+      let card = new cards.Card(1);
+      card.type = "test";
+      expect(card.isRelevantStack([])).toBeTruthy();
+    });
     test("cards of all the same type should be relevant", function() {
       let card = new cards.Card(1);
       let card2 = new cards.Card(2);
