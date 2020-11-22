@@ -1,5 +1,34 @@
 const cards = require("../../cards")
 
+describe("Tempura Card", function() {
+  test("Check type is 'tempura'", function() {
+    let card = new cards.TempuraCard();
+    expect(TempuraCard.typeName).toEqual("tempura");
+    expect(card.type).toEqual(TempuraCard.typeName);
+  });
+  // NOTE: uses default isRelevantStack
+  test("#isValidStack only allows two Tempura or less",function() {
+    let tcard = new cards.TempuraCard();
+    let allTempura = [];
+    for(let i = 0; i < 2; i++) {
+      allTempura.push(new cards.TempuraCard());
+      expect(tcard.isValidStack(allTempura)).toBeTruthy();
+    }
+    allTempura.push(new cards.TempuraCard());
+    expect(tcard.isValidStack(allTempura)).toBeFalsy();
+  });
+  test("#score is five for exactly two Tempura, zero otherwise",function() {
+    let tcard = new cards.TempuraCard();
+    let allTempura = [];
+    let expectedScores = [0,0,5];
+    while(allTempura.length <= 2) {
+      expect(tcard.score(allTempura)).toEqual(expectedScores[allTempura.length]);
+      allTempura.push(new cards.TempuraCard());
+    }
+    expect(tcard.score(allTempura)).toEqual(0);
+  });
+});
+
 describe("Dumpling Card", function() {
   test("Check type is 'dumpling'", function() {
     let card = new cards.DumplingCard();
