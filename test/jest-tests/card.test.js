@@ -1,6 +1,34 @@
 const cards = require("../../cards")
 
-describe("Tempura Card", function() {
+describe("SashimiCard", function() {
+  test("Check type is 'sashimi'", function() {
+    let card = new cards.SashimiCard();
+    expect(SashimiCard.typeName).toEqual("sashimi");
+    expect(card.type).toEqual(SashimiCard.typeName);
+  });
+  // NOTE: uses default isRelevantStack
+  test("#isValidStack only allows three Sashimi or less",function() {
+    let scard = new cards.SashimiCard();
+    let allSashimi = [];
+    for(let i = 0; i < 3; i++) {
+      allSashimi.push(new cards.SashimiCard());
+      expect(scard.isValidStack(allSashimi)).toBeTruthy();
+    }
+    allSashimi.push(new cards.SashimiCard());
+    expect(scard.isValidStack(allSashimi)).toBeFalsy();
+  });
+  test("#score is ten for exactly three Sashimi, zero otherwise",function() {
+    let scard = new cards.SashimiCard();
+    let allSashimi = [];
+    let expectedScores = [0,0,0,10,0];
+    while(allSashimi.length < expectedScores.length) {
+      expect(scard.score(allSashimi)).toEqual(expectedScores[allSashimi.length]);
+      allSashimi.push(new cards.SashimiCard());
+    }
+  });
+});
+
+describe("TempuraCard", function() {
   test("Check type is 'tempura'", function() {
     let card = new cards.TempuraCard();
     expect(TempuraCard.typeName).toEqual("tempura");
@@ -28,7 +56,7 @@ describe("Tempura Card", function() {
   });
 });
 
-describe("Dumpling Card", function() {
+describe("DumplingCard", function() {
   test("Check type is 'dumpling'", function() {
     let card = new cards.DumplingCard();
     expect(DumplingCard.typeName).toEqual("dumpling");
@@ -56,7 +84,7 @@ describe("Dumpling Card", function() {
   });
 });
 
-describe("Wasabi Card", function() {
+describe("WasabiCard", function() {
   test("Check type is 'wasabi'", function() {
     let card = new cards.WasabiCard();
     expect(WasabiCard.typeName).toEqual("wasabi");
@@ -65,8 +93,8 @@ describe("Wasabi Card", function() {
   // NOTE: wasabi reuses the NigiriCard score, isValidStack, and isRelevantStack functions
 });
 
-describe("Nigiri Cards", function() {
-  describe("Nigiri Base", function() {
+describe("All NigiriCards", function() {
+  describe("NigiriCard", function() {
     test("Check type is 'nigiri'", function() {
       let card = new cards.NigiriCard();
       expect(NigiriCard.typeName).toEqual("nigiri");
@@ -131,7 +159,7 @@ describe("Nigiri Cards", function() {
       });
     });
   });
-  describe("Egg Nigiri", function() {
+  describe("EggNigiriCard", function() {
     test("Check type is 'nigiri', name is 'egg', and value=1", function() {
       let card = new cards.EggNigiriCard();
       expect(card.type).toEqual(NigiriCard.typeName);
@@ -139,7 +167,7 @@ describe("Nigiri Cards", function() {
       expect(card.value).toEqual(1);
     });
   });
-  describe("Salmon Nigiri", function() {
+  describe("SalmonNigiriCard", function() {
     test("Check type is 'nigiri', name is 'salmon', and value=2", function() {
       let card = new cards.SalmonNigiriCard();
       expect(card.type).toEqual(NigiriCard.typeName);
@@ -147,7 +175,7 @@ describe("Nigiri Cards", function() {
       expect(card.value).toEqual(2);
     });
   });
-  describe("Squid Nigiri", function() {
+  describe("SquidNigiriCard", function() {
     test("Check type is 'nigiri', name is 'squid', and value=3", function() {
       let card = new cards.SquidNigiriCard();
       expect(card.type).toEqual(NigiriCard.typeName);
