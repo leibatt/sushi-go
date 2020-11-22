@@ -20,12 +20,11 @@ describe("Tempura Card", function() {
   test("#score is five for exactly two Tempura, zero otherwise",function() {
     let tcard = new cards.TempuraCard();
     let allTempura = [];
-    let expectedScores = [0,0,5];
-    while(allTempura.length <= 2) {
+    let expectedScores = [0,0,5,0];
+    while(allTempura.length < expectedScores.length) {
       expect(tcard.score(allTempura)).toEqual(expectedScores[allTempura.length]);
       allTempura.push(new cards.TempuraCard());
     }
-    expect(tcard.score(allTempura)).toEqual(0);
   });
 });
 
@@ -49,12 +48,11 @@ describe("Dumpling Card", function() {
   test("#score scale is correct for up to five dumplings, zero otherwise",function() {
     let dcard = new cards.DumplingCard();
     let allDumplings = [];
-    let expectedScores = [0,1,3,6,10,15];
-    while(allDumplings.length <= 5) {
+    let expectedScores = [0,1,3,6,10,15,0];
+    while(allDumplings.length < expectedScores.length) {
       expect(dcard.score(allDumplings)).toEqual(expectedScores[allDumplings.length]);
       allDumplings.push(new cards.DumplingCard());
     }
-    expect(dcard.score(allDumplings)).toEqual(0);
   });
 });
 
