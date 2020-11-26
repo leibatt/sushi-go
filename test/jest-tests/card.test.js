@@ -1,5 +1,32 @@
 const cards = require("../../cards")
 
+
+describe("MakiCard", function() {
+  test("Check type is 'maki'", function() {
+    let card = new cards.MakiCard();
+    expect(MakiCard.typeName).toEqual("maki");
+    expect(card.type).toEqual(MakiCard.typeName);
+  });
+  test("#isValidStack only allows Maki cards",function() {
+    let mcard = new cards.MakiCard();
+    let allMaki = [];
+    for(let i = 0; i < 5; i++) {
+      allMaki.push(new cards.MakiCard());
+      expect(mcard.isValidStack(allMaki)).toBeTruthy();
+    }
+    allMaki.push(new cards.Card());
+    expect(mcard.isValidStack(allMaki)).toBeFalsy();
+  });
+  test("#score is sum of MakiCard values",function() {
+    let mcard = new cards.MakiCard();
+    let mstack = [];
+    for(let i = 1, currScore = i; i <= 3; i++, currScore += i) {
+      mstack.push(new cards.MakiCard(i));
+      expect(mcard.score(mstack)).toEqual(currScore);
+    }
+  });
+});
+
 describe("SashimiCard", function() {
   test("Check type is 'sashimi'", function() {
     let card = new cards.SashimiCard();

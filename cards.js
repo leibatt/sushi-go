@@ -119,11 +119,8 @@ MakiCard = class extends Card {
   score(stack) {
     //console.log("calling scoring method for MakiCard class");
     //console.log([stack,"is valid stack?",this.isValidStack(stack),"score?",stack.reduce((acc,c) => c.type === self.type ? c.value + acc : acc,0)]);
-    if(this.isValidStack(stack)) {
-      return stack.reduce((acc,c) => c.type === MakiCard.typeName ? c.value + acc : acc,0);
-    } else {
-      return 0; // score should be done compared to everyone else
-    }
+    // score should be done compared to everyone else
+    return this.isValidStack(stack) ? stack.reduce((acc,c) => c.value + acc,0) : 0;
   }
 }
 
