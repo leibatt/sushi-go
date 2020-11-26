@@ -1,5 +1,30 @@
 const cards = require("../../cards")
 
+describe("PuddingCard", function() {
+  test("Check type is 'pudding'", function() {
+    let card = new cards.PuddingCard();
+    expect(PuddingCard.typeName).toEqual("pudding");
+    expect(card.type).toEqual(PuddingCard.typeName);
+  });
+  test("#isValidStack only allows Pudding cards",function() {
+    let pcard = new cards.PuddingCard();
+    let allPudding = [];
+    for(let i = 0; i < 5; i++) {
+      allPudding.push(new cards.PuddingCard());
+      expect(pcard.isValidStack(allPudding)).toBeTruthy();
+    }
+    allPudding.push(new cards.Card());
+    expect(pcard.isValidStack(allPudding)).toBeFalsy();
+  });
+  test("#score is sum of PuddingCard values",function() {
+    let pcard = new cards.PuddingCard();
+    let pstack = [];
+    for(let i = 1; i <= 3; i++) {
+      pstack.push(new cards.PuddingCard(i));
+      expect(pcard.score(pstack)).toEqual(i);
+    }
+  });
+});
 
 describe("MakiCard", function() {
   test("Check type is 'maki'", function() {
