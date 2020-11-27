@@ -1,10 +1,12 @@
 const util = require('./util');
 
 Card = class {
+  static typeName = "base";
+
   constructor(value=null) {
     this.id = util.uuidv4();
-    this.type = null; // override
-    this.name = null; // override
+    this.type = Card.typeName; // override
+    this.name = "base"; // override
     this.value = value;
   }
 
@@ -14,7 +16,13 @@ Card = class {
 
   // assuming the stack is valid
   score(stack) { // override
-    return -1;
+    return null;
+  }
+
+  // is there at least one card in this stack of the same type?
+  existsInStack(stack) {
+    var self = this;
+    return stack.some(card => card.type === self.type);
   }
 
   isRelevantStack(stack) {
@@ -75,6 +83,11 @@ ChopsticksCard = class extends Card {
     super(value);
     this.type = ChopsticksCard.typeName;
     this.name = ChopsticksCard.typeName;
+  }
+
+  // chopsticks can only ever be in a stack by themselves
+  isRelevantStack(stack) {
+    return stack.length === 0;
   }
 
   score(stack) {

@@ -1,5 +1,29 @@
 const cards = require("../../cards")
 
+describe("ChopsticksCard", function() {
+  test("Check type is 'chopsticks'", function() {
+    let card = new cards.ChopsticksCard();
+    expect(ChopsticksCard.typeName).toEqual("chopsticks");
+    expect(card.type).toEqual(ChopsticksCard.typeName);
+  });
+  test("#isRelevantStack should only work for empty stacks",function() {
+    let ccard = new cards.ChopsticksCard();
+    let ccard2 = new cards.ChopsticksCard();
+    let pcard = new cards.PuddingCard();
+    expect(ccard.isValidStack([])).toBeTruthy();
+    expect(ccard.isValidStack([ccard2])).toBeFalsy();
+    expect(ccard.isValidStack([ccard2,pcard])).toBeFalsy();
+  });
+  test("#score is zero (cannot be scored)",function() {
+    let ccard = new cards.ChopsticksCard();
+    let cstack = [];
+    for(let i = 1; i <= 3; i++) {
+      cstack.push(new cards.ChopsticksCard());
+      expect(ccard.score(cstack)).toEqual(0);
+    }
+  });
+});
+
 describe("PuddingCard", function() {
   test("Check type is 'pudding'", function() {
     let card = new cards.PuddingCard();
@@ -238,6 +262,24 @@ describe("All NigiriCards", function() {
 });
 
 describe("Card", function() {
+  describe("#existsInStack", function() {
+    test("should be true for stacks with 1+ cards of same the type", function() {
+      let card = new cards.Card(1);
+      let card2 = new cards.Card(2);
+      let card3 = new cards.Card(3);
+      expect(card.existsInStack([card2,card3])).toBeTruthy();
+      expect(card2.existsInStack([card,card3])).toBeTruthy();
+      expect(card3.existsInStack([card,card2])).toBeTruthy();
+    });
+    test("should be false for stacks with no matching card types", function() {
+      let card = new cards.ChopsticksCard();
+      let card2 = new cards.MakiCard(2);
+      let card3 = new cards.EggNigiriCard();
+      expect(card.existsInStack([card2,card3])).toBeFalsy();
+      expect(card2.existsInStack([card,card3])).toBeFalsy();
+      expect(card3.existsInStack([card,card2])).toBeFalsy();
+    });
+  });
   describe("#isRelevantStack()", function() {
     test("empty stack should be relevant", function() {
       let card = new cards.Card(1);
@@ -248,9 +290,6 @@ describe("Card", function() {
       let card = new cards.Card(1);
       let card2 = new cards.Card(2);
       let card3 = new cards.Card(3);
-      card.type = "test";
-      card2.type = "test";
-      card3.type = "test";
       expect(card.isRelevantStack([card2,card3])).toBeTruthy();
       expect(card2.isRelevantStack([card,card3])).toBeTruthy();
       expect(card3.isRelevantStack([card,card2])).toBeTruthy();
