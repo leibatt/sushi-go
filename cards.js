@@ -1,6 +1,6 @@
-const util = require('./util');
+import * as util from './util';
 
-Card = class {
+export class Card {
   static typeName = "base";
 
   constructor(value=null) {
@@ -15,7 +15,8 @@ Card = class {
   }
 
   // assuming the stack is valid
-  score(stack) { // override
+  score(stack=null) { // override
+    console.warn("trying to score a stack with base Card class:",stack.map(c => c.type).join())
     return null;
   }
 
@@ -76,7 +77,7 @@ Card = class {
   }
 }
 
-ChopsticksCard = class extends Card {
+export class ChopsticksCard extends Card {
   static typeName = "chopsticks";
 
   constructor(value=null) {
@@ -89,13 +90,9 @@ ChopsticksCard = class extends Card {
   isRelevantStack(stack) {
     return stack.length === 0;
   }
-
-  score(stack) {
-    return 0;
-  }
 }
 
-PuddingCard = class extends Card {
+export class PuddingCard extends Card {
   static typeName = "pudding";
 
   constructor(value=1) {
@@ -107,11 +104,11 @@ PuddingCard = class extends Card {
   // assuming the stack is valid
   // only invoke at the end of the round to calculate the maximum pudding score
   score(stack) {
-    return this.isValidStack(stack) ? stack.reduce((acc,c) => acc + 1, 0) : 0;
+    return this.isValidStack(stack) ? stack.length : 0;
   }
 }
 
-MakiCard = class extends Card {
+export class MakiCard extends Card {
   static typeName = "maki";
 
   constructor(value=null) {
@@ -127,7 +124,7 @@ MakiCard = class extends Card {
   }
 }
 
-DumplingCard = class extends Card {
+export class DumplingCard extends Card {
   static typeName = "dumpling";
 
   constructor(value=null) {
@@ -157,7 +154,7 @@ DumplingCard = class extends Card {
   }
 }
 
-TempuraCard = class extends Card {
+export class TempuraCard extends Card {
   static typeName = "tempura";
 
   constructor(value=null) {
@@ -176,7 +173,7 @@ TempuraCard = class extends Card {
   }
 }
 
-SashimiCard = class extends Card {
+export class SashimiCard extends Card {
   static typeName = "sashimi";
 
   constructor(value=null) {
@@ -195,7 +192,7 @@ SashimiCard = class extends Card {
   }
 }
 
-WasabiCard = class extends Card {
+export class WasabiCard extends Card {
   static typeName = "wasabi";
 
   constructor(value=null) {
@@ -218,9 +215,8 @@ WasabiCard = class extends Card {
   }
 }
 
-NigiriCard = class extends Card {
+export class NigiriCard extends Card {
   static typeName = "nigiri";
-
 
   constructor(value=null) {
     super(value);
@@ -281,38 +277,23 @@ NigiriCard = class extends Card {
   }
 }
 
-SquidNigiriCard = class extends NigiriCard {
-  constructor(value=null) {
+export class SquidNigiriCard extends NigiriCard {
+  constructor() {
     super(3);
     this.name = "squid";
   }
 }
 
-SalmonNigiriCard = class extends NigiriCard {
-  constructor(value=null) {
+export class SalmonNigiriCard extends NigiriCard {
+  constructor() {
     super(2);
     this.name = "salmon";
   }
 }
 
-EggNigiriCard = class extends NigiriCard {
-  constructor(value=null) {
+export class EggNigiriCard extends NigiriCard {
+  constructor() {
     super(1);
     this.name = "egg";
   }
 }
-
-module.exports = {
-  Card: Card,
-  ChopsticksCard: ChopsticksCard,
-  DumplingCard: DumplingCard,
-  SashimiCard: SashimiCard,
-  TempuraCard: TempuraCard,
-  NigiriCard: NigiriCard,
-  WasabiCard: WasabiCard,
-  SquidNigiriCard: SquidNigiriCard,
-  SalmonNigiriCard: SalmonNigiriCard,
-  EggNigiriCard: EggNigiriCard,
-  MakiCard: MakiCard,
-  PuddingCard: PuddingCard
-};

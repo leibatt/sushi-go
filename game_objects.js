@@ -1,7 +1,7 @@
-const cards = require('./cards'); // SushiGo card classes
-const util = require('./util');
+import * as cards from './cards'; // SushiGo card classes
+import * as util from './util';
 
-Player = class {
+export class Player {
   constructor(discard,name=null) {
     if(name !== null) {
       this.name = name;
@@ -34,17 +34,17 @@ Player = class {
   }
 
   moveCardToTableau(cardId,stackId) {
-    var card = this.hand.splice(cardId, 1 )[0];
+    let card = this.hand.splice(cardId, 1 )[0];
     this.tableau.addToStack(card,stackId);
   }
 
   addPudding(cardId) {
-    var card = this.hand.splice(cardId, 1)[0];
+    let card = this.hand.splice(cardId, 1)[0];
     this.tableau.puddingCache.push(card);
   }
 
   takeChopsticks(cardId) {
-    var card = this.hand.splice(cardId, 1)[0];
+    let card = this.hand.splice(cardId, 1)[0];
     this.tableau.activeChopsticks = card;
   }
 
@@ -54,7 +54,7 @@ Player = class {
     if(cardIds.length !== 2 || stackIds.length !== 2) {
       throw "Did not return appropriate number of cards and/or stacks!";
     }
-    var pairs = cardIds.map((cardId,i) => {
+    let pairs = cardIds.map((cardId,i) => {
       return {"cardId": cardId,"stackId": stackIds[i]};
     });
     // sort largest card ids first, since removing them will not disrupt the other ids
@@ -63,7 +63,7 @@ Player = class {
     if(this.tableau.activeChopsticks) {
       // take the (2) cards from the current hand
       pairs.forEach(p => {
-        //var card = this.hand.splice(p.cardId, 1)[0];
+        //let card = this.hand.splice(p.cardId, 1)[0];
         this.moveCardToTableau(p.cardId,p.stackId);
       });
       // put the reserved chopsticks in the current hand
@@ -80,7 +80,7 @@ Player = class {
 }
 
 
-Tableau = class {
+export class Tableau {
   constructor(discard) {
     this.stacks = [];
     this.puddingCache = []; // for keeping puddings around
@@ -106,9 +106,9 @@ Tableau = class {
   }
 
   computeScore() {
-    var score = 0;
-    for(var i = 0; i < this.stacks.length; i++) {
-      var stack = this.stacks[i];
+    let score = 0;
+    for(let i = 0; i < this.stacks.length; i++) {
+      let stack = this.stacks[i];
       score += this.computeStackScore(stack);
     }
     return score;
@@ -129,10 +129,10 @@ Tableau = class {
   // compute the first valid score found for this stack
   computeStackScore(stack) {
     //console.log("executing computeStackScore");
-    for(var i = 0; i < this.scoringCards.length; i++) {
+    for(let i = 0; i < this.scoringCards.length; i++) {
       //console.log(this.scoringCards[i],this.scoringCards[i].score(stack));
-      //var score = this.scoringCards[i].score(stack);
-      var score = this.computeStackScoreForCardType(this.scoringCards[i],stack);
+      //let score = this.scoringCards[i].score(stack);
+      let score = this.computeStackScoreForCardType(this.scoringCards[i],stack);
       if(score > 0) {
         return score;
       } else if (score < 0) {
@@ -143,7 +143,7 @@ Tableau = class {
   }
 
   // add the card to the given stack ID
-  addCard(card,stack) {
+  addCard(card,i) {
     this.stacks[i].push(card);
   }
 
@@ -153,11 +153,11 @@ Tableau = class {
       return null;
     }
 
-    var found = [];
-    for(var i = 0; i < this.stacks.length; i++) {
-      var stack = this.stacks[i];
-      for(var j = 0; j < stack.length; j++) {
-        var c = stack[j];
+    let found = [];
+    for(let i = 0; i < this.stacks.length; i++) {
+      let stack = this.stacks[i];
+      for(let j = 0; j < stack.length; j++) {
+        let c = stack[j];
         if(card.type === c.type) {
           found.push(i);
           break;
@@ -168,9 +168,9 @@ Tableau = class {
   }
 
   display() {
-    var stackDisplays = [];
-    for(var i = 0; i < this.stacks.length; i++) {
-      var stack = this.stacks[i];
+    let stackDisplays = [];
+    for(let i = 0; i < this.stacks.length; i++) {
+      let stack = this.stacks[i];
       stackDisplays.push("(stack ["+stack.map((card) => card.display()).join(", ")+"])");
     }
     return "(tableau ["+ stackDisplays.join(", ") + "], chopsticks active? "+ (this.activeChopsticks !== null) +")";
@@ -178,10 +178,10 @@ Tableau = class {
 
   clear() {
     // move tableau to discard pile
-    for(var i = 0; i < this.stacks.length; i++) {
-      var stack = this.stacks[i];
-      for(var j = 0; j < stack.length; j++) {
-        var card = stack[j];
+    for(let i = 0; i < this.stacks.length; i++) {
+      let stack = this.stacks[i];
+      for(let j = 0; j < stack.length; j++) {
+        let card = stack[j];
         this.discard.push(card);
       }
     }
@@ -206,7 +206,7 @@ Tableau = class {
 * 4x Chopsticks
 */
 
-Deck = class {
+export class Deck {
   constructor(debug=false) {
     this.cards = [];
     if(debug) {
@@ -229,125 +229,125 @@ Deck = class {
   makeTestDeck() {
 /*
     // 14x Tempura
-    for(var i = 0; i < 14; i++) {
+    for(let i = 0; i < 14; i++) {
       this.cards.push(new cards.TempuraCard());
     }
 
     // 14x Sashimi
-    for(var i = 0; i < 14; i++) {
+    for(let i = 0; i < 14; i++) {
       this.cards.push(new cards.SashimiCard());
     }
 
     // 14x Dumpling
-    for(var i = 0; i < 14; i++) {
+    for(let i = 0; i < 14; i++) {
       this.cards.push(new cards.DumplingCard());
     }
 
     // 6x Wasabi
-    for(var i = 0; i < 6; i++) {
+    for(let i = 0; i < 6; i++) {
       this.cards.push(new cards.WasabiCard());
     }
 */
 
     // 10x Salmon Nigiri
-    for(var i = 0; i < 4; i++) {
+    for(let i = 0; i < 4; i++) {
       this.cards.push(new cards.SalmonNigiriCard());
     }
 
     // 5x Squid Nigiri
-    for(var i = 0; i < 4; i++) {
+    for(let i = 0; i < 4; i++) {
       this.cards.push(new cards.SquidNigiriCard());
     }
 
     // 5x Egg Nigiri
-    for(var i = 0; i < 4; i++) {
+    for(let i = 0; i < 4; i++) {
       this.cards.push(new cards.EggNigiriCard());
     }
 
 /*
     // 12x 2 Maki
-    for(var i = 0; i < 12; i++) {
+    for(let i = 0; i < 12; i++) {
       this.cards.push(new cards.MakiCard(2));
     }
 
     // 8x 3 Maki
-    for(var i = 0; i < 20; i++) {
+    for(let i = 0; i < 20; i++) {
       this.cards.push(new cards.MakiCard(3));
     }
 
     // 6x 1 Maki
-    for(var i = 0; i < 40; i++) {
+    for(let i = 0; i < 40; i++) {
       this.cards.push(new cards.MakiCard(1));
     }
     // 10x Pudding
-    for(var i = 0; i < 20; i++) {
+    for(let i = 0; i < 20; i++) {
       this.cards.push(new cards.PuddingCard());
     }
 */
     // 4x Chopsticks
-    for(var i = 0; i < 4; i++) {
+    for(let i = 0; i < 4; i++) {
       this.cards.push(new cards.ChopsticksCard());
     }
   }
 
   makeStandardDeck() {
     // 14x Tempura
-    for(var i = 0; i < 14; i++) {
+    for(let i = 0; i < 14; i++) {
       this.cards.push(new cards.TempuraCard());
     }
 
     // 14x Sashimi
-    for(var i = 0; i < 14; i++) {
+    for(let i = 0; i < 14; i++) {
       this.cards.push(new cards.SashimiCard());
     }
 
     // 14x Dumpling
-    for(var i = 0; i < 14; i++) {
+    for(let i = 0; i < 14; i++) {
       this.cards.push(new cards.DumplingCard());
     }
 
     // 12x 2 Maki
-    for(var i = 0; i < 12; i++) {
+    for(let i = 0; i < 12; i++) {
       this.cards.push(new cards.MakiCard(2));
     }
 
     // 8x 3 Maki
-    for(var i = 0; i < 8; i++) {
+    for(let i = 0; i < 8; i++) {
       this.cards.push(new cards.MakiCard(3));
     }
 
     // 6x 1 Maki
-    for(var i = 0; i < 6; i++) {
+    for(let i = 0; i < 6; i++) {
       this.cards.push(new cards.MakiCard(1));
     }
 
     // 10x Salmon Nigiri
-    for(var i = 0; i < 10; i++) {
+    for(let i = 0; i < 10; i++) {
       this.cards.push(new cards.SalmonNigiriCard());
     }
 
     // 5x Squid Nigiri
-    for(var i = 0; i < 5; i++) {
+    for(let i = 0; i < 5; i++) {
       this.cards.push(new cards.SquidNigiriCard());
     }
 
     // 5x Egg Nigiri
-    for(var i = 0; i < 5; i++) {
+    for(let i = 0; i < 5; i++) {
       this.cards.push(new cards.EggNigiriCard());
     }
 
     // 10x Pudding
-    for(var i = 0; i < 10; i++) {
+    for(let i = 0; i < 10; i++) {
       this.cards.push(new cards.PuddingCard());
     }
 
     // 6x Wasabi
-    for(var i = 0; i < 6; i++) {
+    for(let i = 0; i < 6; i++) {
       this.cards.push(new cards.WasabiCard());
     }
 
     // 4x Chopsticks
-    for(var i = 0; i < 4; i++) {
+    for(let i = 0; i < 4; i++) {
       this.cards.push(new cards.ChopsticksCard());
     }
   }
@@ -357,7 +357,7 @@ Deck = class {
   }
 }
 
-GameManager = class {
+export class GameManager {
 
   // takes list of player names as input
   constructor(players=null,debug=false) {
@@ -394,7 +394,7 @@ GameManager = class {
   }
 
   createPlayer(name=null) {
-    var player = new Player(this.discard,name);
+    let player = new Player(this.discard,name);
     this.players[player.getName()] = player;
     return player;
   }
@@ -403,9 +403,9 @@ GameManager = class {
     if(this.playerOrder.length === 0) { // no players!
       return;
     }
-    var prevHand = this.players[this.playerOrder[0]].getHand();
-    for(var i = 1; i < this.playerOrder.length; i++) {
-      var currHand = this.players[this.playerOrder[i]].getHand();
+    let prevHand = this.players[this.playerOrder[0]].getHand();
+    for(let i = 1; i < this.playerOrder.length; i++) {
+      let currHand = this.players[this.playerOrder[i]].getHand();
       //console.log([this.playerOrder[i],"prevHand","(hand ["+ prevHand.map((card) => card.display()).join(", ")+"])"]);
       //console.log([this.playerOrder[i],"currHand","(hand ["+ currHand.map((card) => card.display()).join(", ")+"])"]);
       this.players[this.playerOrder[i]].setHand(prevHand);
@@ -416,11 +416,11 @@ GameManager = class {
   }
 
   assignHands() {
-    var names = Object.keys(this.players);
+    let names = Object.keys(this.players);
     if(names.length < 2) {
       throw "Insufficient number of players: "+names.length;
     }
-    var cardsPerPlayer = {
+    let cardsPerPlayer = {
       2: 10,
       3: 9,
       4: 8,
@@ -429,8 +429,8 @@ GameManager = class {
     if(this.debug) {
       cardsPerPlayer = 4;
     }
-    for(var i = 0; i < cardsPerPlayer; i++) {
-      for(var j = 0; j < names.length; j++) {
+    for(let i = 0; i < cardsPerPlayer; i++) {
+      for(let j = 0; j < names.length; j++) {
         this.players[names[j]].getHand().push(this.deck.drawCard());
       }
     }
@@ -477,11 +477,11 @@ GameManager = class {
       if(this.checkRoundEnd()) { // round is over
         if(this.currentRound === 2) { // was this the last round?
           console.log("game over!");
-          var res = this.endRound(true);
+          this.endRound(true);
           console.log(this.displayFinalScores());
         } else {
           console.log("round over!");
-          var res = this.endRound(false);
+          let res = this.endRound(false);
           console.log(res);
           this.currentTurn = 0;
           this.playerOrder.forEach(n => this.players[n].clearTableau());
@@ -495,9 +495,9 @@ GameManager = class {
   }
 
   computeCurrentScores() {
-    var scores = {};
-    for(var i = 0; i < this.playerOrder.length; i++) {
-      var playerName = this.playerOrder[i];
+    let scores = {};
+    for(let i = 0; i < this.playerOrder.length; i++) {
+      let playerName = this.playerOrder[i];
       scores[playerName] = this.players[this.playerOrder[i]].getTableau().computeScore();
     }
     return scores;
@@ -506,8 +506,8 @@ GameManager = class {
   // for calculating scores for Pudding at the end of the game
   computePuddingScores() {
     // prepare base scores
-    var puddingScores = {};
-    var items = this.playerOrder.map((n,i) => { 
+    let puddingScores = {};
+    let items = this.playerOrder.map((n,i) => { 
       puddingScores[n] = 0;
       return {
         "id": i,
@@ -520,8 +520,8 @@ GameManager = class {
     if(items.length > 1) {
       items.sort((a,b) => b.score-a.score); // sort in reverse
       // search for ties
-      var mt = 0;
-      for(var i = 1; i < items.length; i++) {
+      let mt = 0;
+      for(let i = 1; i < items.length; i++) {
         if(items[i].score < items[0].score) {
           break;
         } else {
@@ -529,8 +529,8 @@ GameManager = class {
         }
       }
       if(mt > 0) { // ties for first place
-        var pt = Math.floor(6 / (mt + 1));
-        for(var i = 0; i <= mt; i++) {
+        let pt = Math.floor(6 / (mt + 1));
+        for(let i = 0; i <= mt; i++) {
           puddingScores[items[i].name] = pt;
         }
       } else {
@@ -543,8 +543,8 @@ GameManager = class {
     if(items.length > 2) { // ignore in 2-player game
       items.sort((a,b) => a.score-b.score);
       // search for ties
-      var mt = 0;
-      for(var i = 1; i < items.length; i++) {
+      let mt = 0;
+      for(let i = 1; i < items.length; i++) {
         if(items[i].score > items[0].score) {
           break;
         } else {
@@ -552,8 +552,8 @@ GameManager = class {
         }
       }
       if(mt > 0) { // ties for first place
-        var pt = Math.floor(6 / (mt + 1));
-        for(var i = 0; i <= mt; i++) {
+        let pt = Math.floor(6 / (mt + 1));
+        for(let i = 0; i <= mt; i++) {
           puddingScores[items[i].name] -= pt;
         }
       } else {
@@ -566,7 +566,7 @@ GameManager = class {
 
   // for calculating scores for Maki
   computeMakiScores() {
-    var items = [];
+    let items = [];
     this.playerOrder.forEach((n,i) => {
       items.push({
         "id": i,
@@ -577,13 +577,13 @@ GameManager = class {
     items.sort((a,b) => b.score-a.score); // sort in reverse
 
     // prepare base scores
-    var makiScores = {};
+    let makiScores = {};
     items.forEach(i => { makiScores[i.name] = 0; });
 
     if(items.length > 1) {
       // search for ties
-      var mt = 0;
-      for(var i = 1; i < items.length; i++) {
+      let mt = 0;
+      for(let i = 1; i < items.length; i++) {
         if(items[i].score < items[0].score) {
           break;
         } else {
@@ -591,22 +591,22 @@ GameManager = class {
         }
       }
       if(mt > 0) { // ties for first place
-        var pt = Math.floor(6 / (mt + 1));
-        for(var i = 0; i <= mt; i++) {
+        let pt = Math.floor(6 / (mt + 1));
+        for(let i = 0; i <= mt; i++) {
           makiScores[items[i].name] = pt;
         }
       } else { // check ties for second place
         makiScores[items[0].name] = 6;
         mt = 1;
-        for(i = 2; i < items.length; i++) {
+        for(let i = 2; i < items.length; i++) {
           if(items[i].score < items[1].score) {
             break;
           } else {
             mt = i;
           }
         }
-        var pt = Math.floor(3 / mt); // will always be 1
-        for(var i = 1; i <= mt; i++) {
+        let pt = Math.floor(3 / mt); // will always be 1
+        for(let i = 1; i <= mt; i++) {
           makiScores[items[i].name] = pt;
         }
       }
@@ -615,16 +615,17 @@ GameManager = class {
   }
 
   scoreRound(finalround=false) {
-    var scores = this.computeCurrentScores();
-    var makiScores = this.computeMakiScores();
+    let scores = this.computeCurrentScores();
+    let makiScores = this.computeMakiScores();
+    let puddingScores;
     if(finalround) {
-      var puddingScores = this.computePuddingScores();
+      puddingScores = this.computePuddingScores();
     } else {
-      var puddingScores = {};
+      puddingScores = {};
       this.playerOrder.forEach(p => { puddingScores[p] = 0; });
     }
-    for(var i = 0; i < this.playerOrder.length; i++) {
-      var playerName = this.playerOrder[i];
+    for(let i = 0; i < this.playerOrder.length; i++) {
+      let playerName = this.playerOrder[i];
       console.log("player",playerName,"base score",scores[playerName],"maki score",makiScores[playerName],"pudding score",puddingScores[playerName]);
       this.scores[playerName].push(scores[playerName]+makiScores[playerName]+puddingScores[playerName]);
     }
@@ -632,18 +633,18 @@ GameManager = class {
   }
 
   displayFinalScores() {
-   var scoreStrings = [];
-    for(var i = 0; i < this.playerOrder.length; i++) {
-      var playerName = this.playerOrder[i];
+   let scoreStrings = [];
+    for(let i = 0; i < this.playerOrder.length; i++) {
+      let playerName = this.playerOrder[i];
       scoreStrings.push("(score "+[playerName, util.sum(this.scores[playerName])].join(", ")+")");
     }
     return "final scores : ["+scoreStrings.join(", ")+"]";
   }
 
   displayScoresForCurrentRound() {
-    var scoreStrings = [];
-    for(var i = 0; i < this.playerOrder.length; i++) {
-      var playerName = this.playerOrder[i];
+    let scoreStrings = [];
+    for(let i = 0; i < this.playerOrder.length; i++) {
+      let playerName = this.playerOrder[i];
       scoreStrings.push("(score "+[playerName, this.scores[playerName][this.currentRound]].join(", ")+")");
     }
     return "scores for round "+this.currentRound+ ": ["+scoreStrings.join(", ")+"]";
@@ -651,7 +652,7 @@ GameManager = class {
 
   endRound(finalround=false) {
     this.scoreRound(finalround); 
-    var results = this.displayScoresForCurrentRound();
+    let results = this.displayScoresForCurrentRound();
     this.currentRound++;
     return results;
   }
@@ -660,10 +661,3 @@ GameManager = class {
     return this.playerOrder.every(n => this.players[n].getHand().length == 0);
   }
 }
-
-module.exports = {
-  Player: Player,
-  Tableau: Tableau,
-  Card: Card,
-  GameManager: GameManager
-};

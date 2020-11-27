@@ -1,4 +1,4 @@
-const util = require('../../util');
+import * as util from '../../util';
 
 describe('testing util functions', function() {
   describe("#randomIntegerFromRange()", function() {

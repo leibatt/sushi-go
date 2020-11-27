@@ -1,10 +1,10 @@
-const cards = require("../../cards")
+import * as cards from "../../cards";
 
 describe("ChopsticksCard", function() {
   test("Check type is 'chopsticks'", function() {
     let card = new cards.ChopsticksCard();
-    expect(ChopsticksCard.typeName).toEqual("chopsticks");
-    expect(card.type).toEqual(ChopsticksCard.typeName);
+    expect(cards.ChopsticksCard.typeName).toEqual("chopsticks");
+    expect(card.type).toEqual(cards.ChopsticksCard.typeName);
   });
   test("#isRelevantStack should only work for empty stacks",function() {
     let ccard = new cards.ChopsticksCard();
@@ -14,21 +14,14 @@ describe("ChopsticksCard", function() {
     expect(ccard.isValidStack([ccard2])).toBeFalsy();
     expect(ccard.isValidStack([ccard2,pcard])).toBeFalsy();
   });
-  test("#score is zero (cannot be scored)",function() {
-    let ccard = new cards.ChopsticksCard();
-    let cstack = [];
-    for(let i = 1; i <= 3; i++) {
-      cstack.push(new cards.ChopsticksCard());
-      expect(ccard.score(cstack)).toEqual(0);
-    }
-  });
+
 });
 
 describe("PuddingCard", function() {
   test("Check type is 'pudding'", function() {
     let card = new cards.PuddingCard();
-    expect(PuddingCard.typeName).toEqual("pudding");
-    expect(card.type).toEqual(PuddingCard.typeName);
+    expect(cards.PuddingCard.typeName).toEqual("pudding");
+    expect(card.type).toEqual(cards.PuddingCard.typeName);
   });
   test("#isValidStack only allows Pudding cards",function() {
     let pcard = new cards.PuddingCard();
@@ -53,8 +46,8 @@ describe("PuddingCard", function() {
 describe("MakiCard", function() {
   test("Check type is 'maki'", function() {
     let card = new cards.MakiCard();
-    expect(MakiCard.typeName).toEqual("maki");
-    expect(card.type).toEqual(MakiCard.typeName);
+    expect(cards.MakiCard.typeName).toEqual("maki");
+    expect(card.type).toEqual(cards.MakiCard.typeName);
   });
   test("#isValidStack only allows Maki cards",function() {
     let mcard = new cards.MakiCard();
@@ -79,8 +72,8 @@ describe("MakiCard", function() {
 describe("SashimiCard", function() {
   test("Check type is 'sashimi'", function() {
     let card = new cards.SashimiCard();
-    expect(SashimiCard.typeName).toEqual("sashimi");
-    expect(card.type).toEqual(SashimiCard.typeName);
+    expect(cards.SashimiCard.typeName).toEqual("sashimi");
+    expect(card.type).toEqual(cards.SashimiCard.typeName);
   });
   // NOTE: uses default isRelevantStack
   test("#isValidStack only allows three Sashimi or less",function() {
@@ -107,8 +100,8 @@ describe("SashimiCard", function() {
 describe("TempuraCard", function() {
   test("Check type is 'tempura'", function() {
     let card = new cards.TempuraCard();
-    expect(TempuraCard.typeName).toEqual("tempura");
-    expect(card.type).toEqual(TempuraCard.typeName);
+    expect(cards.TempuraCard.typeName).toEqual("tempura");
+    expect(card.type).toEqual(cards.TempuraCard.typeName);
   });
   // NOTE: uses default isRelevantStack
   test("#isValidStack only allows two Tempura or less",function() {
@@ -135,8 +128,8 @@ describe("TempuraCard", function() {
 describe("DumplingCard", function() {
   test("Check type is 'dumpling'", function() {
     let card = new cards.DumplingCard();
-    expect(DumplingCard.typeName).toEqual("dumpling");
-    expect(card.type).toEqual(DumplingCard.typeName);
+    expect(cards.DumplingCard.typeName).toEqual("dumpling");
+    expect(card.type).toEqual(cards.DumplingCard.typeName);
   });
   // NOTE: uses default isRelevantStack
   test("#isValidStack only allows five dumplings or less",function() {
@@ -163,8 +156,8 @@ describe("DumplingCard", function() {
 describe("WasabiCard", function() {
   test("Check type is 'wasabi'", function() {
     let card = new cards.WasabiCard();
-    expect(WasabiCard.typeName).toEqual("wasabi");
-    expect(card.type).toEqual(WasabiCard.typeName);
+    expect(cards.WasabiCard.typeName).toEqual("wasabi");
+    expect(card.type).toEqual(cards.WasabiCard.typeName);
   });
   // NOTE: wasabi reuses the NigiriCard score, isValidStack, and isRelevantStack functions
 });
@@ -173,8 +166,8 @@ describe("All NigiriCards", function() {
   describe("NigiriCard", function() {
     test("Check type is 'nigiri'", function() {
       let card = new cards.NigiriCard();
-      expect(NigiriCard.typeName).toEqual("nigiri");
-      expect(card.type).toEqual(NigiriCard.typeName);
+      expect(cards.NigiriCard.typeName).toEqual("nigiri");
+      expect(card.type).toEqual(cards.NigiriCard.typeName);
     });
     test("#isRelevantStack only Wasabi and Nigiri cards are relevant", function() {
       let ncard = new cards.NigiriCard(1);
@@ -220,8 +213,6 @@ describe("All NigiriCards", function() {
         let ncard = new cards.NigiriCard(1);
         let ncard2 = new cards.NigiriCard(2);
         let ncard3 = new cards.NigiriCard(3);
-        let card = new cards.Card(1);
-        let wcard = new cards.WasabiCard();
         expect(ncard.score([ncard2,ncard3])).toEqual(0);
       });
       test("Check that stacks with zero nigiri receive a score of zero", function() {
@@ -238,7 +229,7 @@ describe("All NigiriCards", function() {
   describe("EggNigiriCard", function() {
     test("Check type is 'nigiri', name is 'egg', and value=1", function() {
       let card = new cards.EggNigiriCard();
-      expect(card.type).toEqual(NigiriCard.typeName);
+      expect(card.type).toEqual(cards.NigiriCard.typeName);
       expect(card.name).toEqual("egg");
       expect(card.value).toEqual(1);
     });
@@ -246,7 +237,7 @@ describe("All NigiriCards", function() {
   describe("SalmonNigiriCard", function() {
     test("Check type is 'nigiri', name is 'salmon', and value=2", function() {
       let card = new cards.SalmonNigiriCard();
-      expect(card.type).toEqual(NigiriCard.typeName);
+      expect(card.type).toEqual(cards.NigiriCard.typeName);
       expect(card.name).toEqual("salmon");
       expect(card.value).toEqual(2);
     });
@@ -254,7 +245,7 @@ describe("All NigiriCards", function() {
   describe("SquidNigiriCard", function() {
     test("Check type is 'nigiri', name is 'squid', and value=3", function() {
       let card = new cards.SquidNigiriCard();
-      expect(card.type).toEqual(NigiriCard.typeName);
+      expect(card.type).toEqual(cards.NigiriCard.typeName);
       expect(card.name).toEqual("squid");
       expect(card.value).toEqual(3);
     });
@@ -262,6 +253,14 @@ describe("All NigiriCards", function() {
 });
 
 describe("Card", function() {
+  test("#score is zero (cannot be scored)",function() {
+    let card = new cards.Card(1);
+    let stack = [];
+    for(let i = 1; i <= 3; i++) {
+      stack.push(new cards.Card(1));
+      expect(card.score(stack)).toEqual(null);
+    }
+  });
   describe("#existsInStack", function() {
     test("should be true for stacks with 1+ cards of same the type", function() {
       let card = new cards.Card(1);

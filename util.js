@@ -1,29 +1,29 @@
 
 // return random integer between 0 and u
-randomInteger = function(u) {
+export function randomInteger(u) {
   return Math.floor(Math.random() * u);
-};
+}
 
 // return random integer from l to u
-randomIntegerFromRange = function(l,u) {
+export function randomIntegerFromRange(l,u) {
   return Math.floor(Math.random() * (u - l) + l);
-};
+}
 
 // return random v4 uuid
-uuidv4 = function() {
+export function uuidv4() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
     var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
     return v.toString(16);
   });
-};
+}
 
 // given an array of numbers, return the sum of the array values
-sum = function(array) {
+export function sum(array) {
   return array.reduce((accum,elem) => accum + elem,0);
-};
+}
 
 // shuffle the given array in place
-shuffle = function(array) {
+export function shuffle(array) {
   var currentIndex = array.length;
   var temporaryValue = null;
   var randomIndex = null;
@@ -42,13 +42,4 @@ shuffle = function(array) {
   }
 
   return array;
-};
-
-module.exports = {
-  uuidv4: uuidv4,
-  sum: sum,
-  shuffle: shuffle,
-  randomInteger: randomInteger,
-  randomIntegerFromRange: randomIntegerFromRange
-};
-
+}

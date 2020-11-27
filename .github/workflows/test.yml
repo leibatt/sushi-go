@@ -23,4 +23,4 @@ jobs:
       run: yarn --frozen-lockfile
 
     - name: Test coverage
-      run: yarn jest test/jest-tests/ --collectCoverage=true
+      run: yarn test
