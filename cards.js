@@ -15,7 +15,7 @@ export class Card {
   }
 
   // assuming the stack is valid
-  score(stack=null) { // override
+  score(stack) { // override
     console.warn("trying to score a stack with base Card class:",stack.map(c => c.type).join())
     return null;
   }

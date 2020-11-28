@@ -479,4 +479,22 @@ describe("Card", function() {
       expect(cards.Card.sumStack([card,card2,card3,card4,card5])).toEqual(15);
     });
   });
+  describe("#indexOfType()", () => {
+    test("returns -1 if type not found in stack", () => {
+      expect(cards.Card.indexOfType([],cards.Card.typeName)).toEqual(-1);
+    });
+    test("returns array position if type is found in stack", () => {
+      expect(cards.Card.indexOfType([new cards.Card(1)],cards.Card.typeName)).toEqual(0);
+    });
+  });
+  describe("#display()", () => {
+    test("#display() base card displays properly", () => {
+      let card = new cards.Card(1);
+      expect(card.display()).toEqual("(card base base 1)");
+    });
+    test("#display() base card with no value displays null value", () => {
+      let card = new cards.Card();
+      expect(card.display()).toEqual("(card base base null)");
+    });
+  });
 });

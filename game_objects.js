@@ -92,15 +92,15 @@ export class Tableau {
   }
 
   addToStack(card,stackId=null) {
-    console.log(card.display(),stackId);
-    if(this.stacks.length === 0 || stackId === null || stackId && stackId < 0) { // make a new stack
+    //console.log(card.display(),stackId);
+    if(stackId === null || stackId === undefined) { // make a new stack
       this.stacks.push([card]);
-      console.log("got here1");
+      //console.log("got here1");
     } else if(stackId >= 0 && stackId < this.stacks.length) { // valid stackId was passed
       this.stacks[stackId].push(card);
-      console.log("got here2");
+      //console.log("got here2");
     } else { // something bad happened
-      console.log("got here3");
+      //console.log("got here3");
       throw ["did not add card to stack! ",card.display(),stackId].join(" ");
     }
   }
